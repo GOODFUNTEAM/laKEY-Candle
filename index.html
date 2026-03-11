@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>laKEY-Candle: HARDWARE_LOCKED</title>
+    <title>laKEY-Candle: TERMINAL</title>
     <style>
         :root {
             --pip-green: #18ff62;
             --pip-bg: #0c120c;
             --pip-dim: #063d17;
-            --pip-err: #ff3b3b;
         }
 
         body {
@@ -25,7 +24,7 @@
             overflow: hidden;
         }
 
-        /* 掃描線特效 */
+        /* 螢幕掃描線 */
         body::before {
             content: " ";
             display: block;
@@ -63,21 +62,20 @@
             background: rgba(24, 255, 98, 0.02);
             box-shadow: 0 0 20px var(--pip-dim);
             min-height: 220px;
-            position: relative;
         }
 
-        .status-msg { margin-bottom: 20px; letter-spacing: 2px; height: 1.2rem; }
+        .status-msg { margin-bottom: 15px; letter-spacing: 2px; }
         .blink { animation: blink-anim 1s steps(2, start) infinite; }
         @keyframes blink-anim { to { visibility: hidden; } }
 
         #result-area { display: none; margin-top: 10px; border-top: 1px solid var(--pip-dim); padding-top: 20px; }
-        .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem; text-align: left; }
-        .rank-item { border: 1px solid var(--pip-dim); padding: 5px; display: flex; justify-content: space-between; }
+        .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; text-align: left; }
+        .rank-item { border: 1px solid var(--pip-dim); padding: 4px; display: flex; justify-content: space-between; }
         .tag-sssr { background: var(--pip-green); color: var(--pip-bg); font-weight: bold; }
         
-        #poem-text { font-size: 1.2rem; margin: 20px 0; line-height: 1.4; color: #fff; text-shadow: 0 0 5px var(--pip-green); font-weight: bold; }
-        
-        .error-msg { color: var(--pip-err); display: none; margin-top: 10px; font-size: 0.8rem; }
+        #poem-text { font-size: 1.1rem; margin: 15px 0; line-height: 1.4; color: #fff; text-shadow: 0 0 5px var(--pip-green); }
+
+        .footer-note { font-size: 9px; opacity: 0.2; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -92,34 +90,38 @@
 
     <div class="ui-box">
         <div class="status-msg" id="main-status">> SYSTEM_LOCKED</div>
-        <div id="instruction" class="blink">偵測硬體授權中...</div>
-        <div id="err-display" class="error-msg">!! ACCESS_DENIED: 非授權標籤 !!</div>
+        <div id="instruction" class="blink">請感應實體燭籤解鎖</div>
         
         <div id="result-area">
             <div class="ranks-grid" id="ranks-container"></div>
-            <div id="poem-text"></div>
+            <div id="poem-text">讀取中...</div>
+            <div style="font-size: 9px; color: var(--pip-dim);">SESSION_ACTIVE: 隨時感應以重新分析</div>
         </div>
     </div>
-    <p style="margin-top:20px; font-size:10px; opacity:0.1;">ID: 04:27:AF:1F:C8:2A:81_SECURED</p>
+    
+    <div class="footer-note">VAULT-TEC PROTOCOL // GOODFUN TEAM</div>
 </div>
 
 <script>
-    // 你的專屬標籤序號
-    const MASTER_KEY = "04:27:af:1f:c8:2a:81"; 
-    
+    const MASTER_SERIAL = "04:27:af:1f:c8:2a:81"; // Android 硬體鎖
+    const MASTER_KEY = "GOODFUN_TOKEN_0427";     // iPhone 網址鎖
+
     const rarity = [{name:"SSSR",w:1,c:"tag-sssr"},{name:"SSR",w:4,c:""},{name:"SP",w:5,c:""},{name:"SR",w:15,c:""},{name:"R",w:45,c:""},{name:"N",w:30,c:""}];
     const categories = ["LOVE", "WEALTH", "CAREER", "TRAVEL", "HEALTH", "OVERALL"];
 
     async function executeDraw() {
+        // 如果是帶 Key 進來的，立即洗掉網址參數，不留痕跡
+        if (window.location.search.includes('key=')) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         const logo = document.getElementById('logo-svg');
         const status = document.getElementById('main-status');
         const instruction = document.getElementById('instruction');
         const resultArea = document.getElementById('result-area');
-        const errDisplay = document.getElementById('err-display');
 
-        errDisplay.style.display = 'none';
         logo.className = 'spin-fast';
-        status.innerText = "> KEY_MATCHED. RUNNING...";
+        status.innerText = "> ACCESS_GRANTED. RUNNING...";
         instruction.style.display = 'none';
         resultArea.style.display = 'none';
 
@@ -147,34 +149,33 @@
             status.innerText = "> ANALYSIS_COMPLETE";
             resultArea.style.display = 'block';
             instruction.style.display = 'block';
-            instruction.innerText = "重新感應以再次分析";
+            instruction.innerText = "感應標籤以再次抽籤";
 
         } catch (e) {
             status.innerText = "> ERR: DB_OFFLINE";
         }
     }
 
-    // --- 核心硬體鎖定邏輯 ---
+    // --- 初始化與監聽邏輯 ---
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        // iPhone 方案：偵測網址 Key
+        if (urlParams.get('key') === MASTER_KEY) {
+            executeDraw();
+        }
+    };
+
+    // Android 方案：偵測硬體序號
     if ('NDEFReader' in window) {
         const ndef = new NDEFReader();
         ndef.scan().then(() => {
             ndef.onreading = (event) => {
-                const scannedSerial = event.serialNumber.toLowerCase();
-                
-                if (scannedSerial === MASTER_KEY) {
+                const sn = event.serialNumber.toLowerCase();
+                if (sn === MASTER_SERIAL) {
                     executeDraw();
-                } else {
-                    // 如果序號不對，顯示報錯
-                    document.getElementById('err-display').style.display = 'block';
-                    document.getElementById('main-status').innerText = "> AUTH_FAILED";
                 }
             };
-        }).catch(err => {
-            document.getElementById('instruction').innerText = "請在支援 NFC 的瀏覽器開啟";
         });
-    } else {
-        // 對於 iOS 或不支援的瀏覽器，不提供自動觸發，僅能手動
-        document.getElementById('instruction').innerText = "HARDWARE_KEY_REQUIRED";
     }
 </script>
 </body>
