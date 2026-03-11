@@ -24,7 +24,7 @@
             overflow: hidden;
         }
 
-        /* 掃描線特效 */
+        /* 螢幕掃描線 */
         body::before {
             content: " ";
             display: block;
@@ -44,7 +44,7 @@
             z-index: 10;
         }
 
-        /* LOGO 旋轉控制 */
+        /* LOGO 視覺控制 */
         #logo-svg {
             width: 150px;
             height: 150px;
@@ -57,26 +57,27 @@
 
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* 終端機 UI */
         .ui-box {
             border: 2px solid var(--pip-green);
             padding: 20px;
             background: rgba(24, 255, 98, 0.02);
             box-shadow: 0 0 20px var(--pip-dim);
+            min-height: 200px;
         }
 
         .status-msg { margin-bottom: 20px; letter-spacing: 2px; height: 1.2rem; }
         .blink { animation: blink-anim 1s steps(2, start) infinite; }
         @keyframes blink-anim { to { visibility: hidden; } }
 
-        /* 運勢顯示區 (預設隱藏) */
-        #result-area { display: none; margin-top: 20px; border-top: 1px solid var(--pip-green); padding-top: 20px; }
+        #result-area { display: none; margin-top: 10px; border-top: 1px solid var(--pip-dim); padding-top: 20px; }
         .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem; text-align: left; }
         .rank-item { border: 1px solid var(--pip-dim); padding: 5px; display: flex; justify-content: space-between; }
-        .tag-sssr { background: var(--pip-green); color: var(--pip-bg); font-weight: bold; }
+        .tag-sssr { background: var(--pip-green); color: var(--pip-bg); font-weight: bold; box-shadow: 0 0 5px var(--pip-green); }
         
-        #poem-text { font-size: 1.2rem; margin: 20px 0; line-height: 1.4; color: #fff; text-shadow: 0 0 5px var(--pip-green); }
+        #poem-text { font-size: 1.2rem; margin: 20px 0; line-height: 1.4; color: #fff; text-shadow: 0 0 5px var(--pip-green); font-weight: bold; }
 
+        /* 裝飾性線條 */
+        .decor-line { height: 1px; background: var(--pip-dim); margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -86,20 +87,22 @@
         <svg id="logo-svg" class="spin-slow" viewBox="0 0 100 100" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="45" stroke-width="2"/>
             <path d="M50 20V80M20 50H80" stroke-width="2"/>
-        </svg>
+            </svg>
     </div>
 
     <div class="ui-box">
-        <div class="status-msg" id="main-status">> SYSTEM IDLE</div>
-        <div id="instruction" class="blink">請感應燭籤 TOKEN 啟動</div>
+        <div class="status-msg" id="main-status">> SYSTEM_WAITING</div>
+        <div id="instruction" class="blink">PLEASE_INSERT_TOKEN (NFC)</div>
         
         <div id="result-area">
             <div class="ranks-grid" id="ranks-container"></div>
+            <div class="decor-line"></div>
             <div id="poem-text"></div>
+            <div class="decor-line"></div>
         </div>
     </div>
-    
-    <button onclick="simulateNFC()" style="margin-top:50px; background:none; border:1px solid var(--pip-dim); color:var(--pip-dim); font-size:9px; cursor:pointer;">[ 模擬 NFC 感應 ]</button>
+
+    <p style="margin-top: 20px; font-size: 10px; opacity: 0.3; cursor: pointer;" onclick="executeDraw()">[ MANUAL_OVERRIDE ]</p>
 </div>
 
 <script>
@@ -112,33 +115,27 @@
         { name: "N",    w: 30, c: "" }
     ];
     const categories = ["LOVE", "WEALTH", "CAREER", "TRAVEL", "HEALTH", "OVERALL"];
-    let isProcessing = false;
 
-    // 核心功能：當 NFC 被感應時觸發
-    async function onTokenDetected() {
-        if (isProcessing) return; // 防止重複感應
-        isProcessing = true;
-
+    // 核心邏輯：抽籤程式
+    async function executeDraw() {
         const logo = document.getElementById('logo-svg');
         const status = document.getElementById('main-status');
         const instruction = document.getElementById('instruction');
         const resultArea = document.getElementById('result-area');
 
-        // 1. 視覺切換：啟動高速運轉
+        // 視覺：高速旋轉與狀態切換
         logo.className = 'spin-fast';
-        status.innerText = "> TOKEN AUTHORIZED. CALCULATING...";
+        status.innerText = "> AUTHENTICATING... RUNNING_LUCK.EXE";
         instruction.style.display = 'none';
         resultArea.style.display = 'none';
 
         try {
-            // 讀取你的 100 條籤詩
             const res = await fetch('messages.json');
             const poems = await res.json();
 
-            // 模擬地堡終端機計算時間 (1.5秒)
-            await new Promise(r => setTimeout(r, 1500));
+            // 模擬地堡終端機讀取延遲
+            await new Promise(r => setTimeout(r, 2000));
 
-            // 2. 計算六大等級
             let rankHtml = '';
             categories.forEach(cat => {
                 const rand = Math.random() * 100;
@@ -150,42 +147,41 @@
                 rankHtml += `<div class="rank-item"><span>${cat}</span><span class="${sel.c}">${sel.name}</span></div>`;
             });
 
-            // 3. 隨機籤詩
             const lucky = poems[Math.floor(Math.random() * poems.length)];
             const poemDisplay = typeof lucky === 'string' ? lucky : (lucky.text || lucky.content);
 
-            // 4. 顯示結果
+            // 渲染結果
             document.getElementById('ranks-container').innerHTML = rankHtml;
             document.getElementById('poem-text').innerText = poemDisplay;
             
-            // 5. 回復狀態
+            // 結束效果
             logo.className = 'spin-slow';
-            status.innerText = "> ANALYSIS COMPLETE";
+            status.innerText = "> ANALYSIS_COMPLETE";
             resultArea.style.display = 'block';
-            instruction.style.display = 'block';
-            instruction.innerText = "感應標籤以重新分析";
 
         } catch (e) {
-            status.innerText = "> ERROR: DATA_LOSS";
-        } finally {
-            isProcessing = false;
+            status.innerText = "> ERR: DB_READ_FAILURE";
+            logo.className = 'spin-slow';
         }
     }
 
-    // 真正的 NFC 監聽器
+    // 初始化檢查：偵測網址是否有 Token 參數
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        // 如果網址帶有 ?auth=authorized (NFC感應後會自動帶入)
+        if (urlParams.get('auth') === 'authorized') {
+            executeDraw();
+        }
+    };
+
+    // 原生 Web NFC 監聽 (Android Chrome 支援)
     if ('NDEFReader' in window) {
         const ndef = new NDEFReader();
         ndef.scan().then(() => {
-            ndef.onreading = (event) => {
-                // 檢查是否為專屬網址 Token
-                onTokenDetected();
+            ndef.onreading = () => {
+                executeDraw();
             };
         });
-    }
-
-    // 開發用模擬函數
-    function simulateNFC() {
-        onTokenDetected();
     }
 </script>
 </body>
