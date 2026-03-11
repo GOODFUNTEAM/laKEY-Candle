@@ -2,441 +2,198 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>laKEY Candle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Draw - GOODFUN TEAM</title>
     <style>
         :root {
-            --bg-color: #050505;
-            --main-green: #00ff41;
-            --error-red: #ff3e3e;
-            --gold: #ffcc00;
-            --safe-bottom: env(safe-area-inset-bottom);
-        }
-        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; box-sizing: border-box; }
-        input { user-select: auto; -webkit-user-select: auto; }
-        
-        body, html {
-            margin: 0; padding: 0; background-color: var(--bg-color); color: var(--main-green);
-            font-family: 'Courier New', Courier, monospace; height: 100dvh; width: 100vw; overflow: hidden;
+            --win-gray: #c0c0c0;
+            --win-blue: #000080;
+            --win-border-light: #ffffff;
+            --win-border-dark: #808080;
         }
 
-        #auth-error { display: none; padding: 40px; justify-content: center; align-items: center; height: 100%; text-align: center; }
-        #app { display: none; padding: 20px 25px calc(20px + var(--safe-bottom)); flex-direction: column; height: 100%; }
-
-        .status-bar {
-            font-size: 9px; border-bottom: 2px solid var(--main-green); padding-bottom: 8px; 
-            margin-top: env(safe-area-inset-top); display: flex; justify-content: space-between; letter-spacing: 0.5px;
+        body {
+            background-color: #008080; /* Win98 經典綠色背景 */
+            font-family: "Microsoft JhengHei", "PMingLiU", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        /* 核心視覺區 */
-        .wireframe-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        
-        /* Logo 容器：負責上下浮動 */
-        .logo-wrapper {
-            width: 180px; height: 180px; /* 根據 logo 比例放大容器 */
-            display: flex; justify-content: center; align-items: center;
-            animation: float 3s ease-in-out infinite; 
-            position: relative;
+        /* Windows 98 視窗樣式 */
+        .window {
+            width: 350px;
+            background: var(--win-gray);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            box-shadow: 1px 1px 0 0 #000;
+            padding: 2px;
         }
 
-        /* Logo 本體樣式 */
-        .main-logo {
-            width: 140px; height: auto;
-            display: flex; justify-content: center; align-items: center;
-            transition: transform 0.5s;
-            filter: drop-shadow(0 0 15px var(--main-green)); /* 霓虹霓虹霓虹霓虹發光感 */
+        .title-bar {
+            background: var(--win-blue);
+            color: white;
+            padding: 3px 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
         }
 
-        /* 強制 SVG 變為螢光綠黑風格 */
-        .main-logo svg {
-            width: 100%; height: 100%;
-            fill: var(--main-green); /* 強制路徑填充螢光綠 */
-            image-rendering: pixelated; /* 保持像素硬邊 */
+        .window-body {
+            padding: 15px;
         }
 
-        /* 旋轉動畫類別 (由 JS 觸發) */
-        .is-igniting {
-            animation: rotate-fast 0.4s linear infinite !important;
+        /* 運勢等級樣式 */
+        #ranks-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
-        /* 火焰畫布：放在 logo 後方 */
-        #fire-canvas {
-            position: absolute; bottom: 15px; width: 100px; height: 120px;
-            image-rendering: pixelated; opacity: 0.55; pointer-events: none;
+        .rank-item {
+            background: #eee;
+            border: 1px inset var(--win-border-light);
+            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
         }
 
-        .wireframe-label { margin-top: 10px; font-size: 9px; letter-spacing: 2px; opacity: 0.7; }
+        /* 等級顏色與動畫 */
+        .rank-tag { font-weight: bold; padding: 0 4px; }
+        .rank-sssr { background: linear-gradient(45deg, #ffd700, #fff, #ffd700); animation: shine 1.5s infinite; color: #000; border: 1px solid #000; }
+        .rank-ssr { background: #ff00ff; color: #fff; }
+        .rank-sp { background: #000; color: #0ff; text-shadow: 1px 0 #f0f; animation: glitch 0.3s infinite; }
+        .rank-sr { background: #ffa500; color: #fff; }
+        .rank-r { background: #fff; color: #333; }
+        .rank-n { background: #888; color: #ccc; }
 
-        /* 輸入區域 */
-        input[type="text"] {
-            width: 100%; background: rgba(0, 255, 65, 0.05); border: 1.5px solid var(--main-green);
-            color: var(--main-green); padding: 18px; margin-bottom: 12px; outline: none; 
-            font-size: 16px; border-radius: 0; text-align: center; letter-spacing: 2px;
-            transition: all 0.3s; box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.1);
+        @keyframes shine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        input[type="text"]:focus { background: rgba(0, 255, 65, 0.12); border-color: #fff; }
 
-        .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .cat-btn { background: transparent; border: 1px solid var(--main-green); color: var(--main-green); padding: 14px 0; font-size: 13px; cursor: pointer; }
-        .cat-btn.active { background: var(--main-green); color: #000; font-weight: bold; }
-        .ignite-btn { grid-column: span 3; margin-top: 8px; border: 2px solid var(--gold); color: var(--gold); font-weight: bold; padding: 18px 0; letter-spacing: 4px; cursor: pointer; }
-
-        /* 結果畫面 */
-        #result-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color); z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 25px;
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            50% { transform: translate(-1px, 1px); }
+            100% { transform: translate(1px, -1px); }
         }
-        #res-desc { max-width: 100%; line-height: 1.8; font-size: 18px; margin: 25px 0; white-space: pre-wrap; letter-spacing: 1px; }
-        .level-display { font-size: 80px; font-weight: bold; }
 
-        /* 動態定義 */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
+        /* 籤詩顯示區域 */
+        #poem-display {
+            background: white;
+            border: 2px inset var(--win-border-dark);
+            min-height: 80px;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 16px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.5;
         }
-        @keyframes rotate-fast {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(360deg); }
+
+        button {
+            width: 100%;
+            padding: 8px;
+            background: var(--win-gray);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+        }
+
+        button:active {
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
         }
     </style>
 </head>
 <body>
 
-    <div id="auth-error">
-        <div>
-            <h1 style="color: var(--error-red); font-size: 24px;">[ laKEY Candle ]</h1>
-            <p id="ui-denied"></p>
-            <p id="ui-denied-desc"></p>
-        </div>
+<div class="window">
+    <div class="title-bar">
+        <span>Lucky_Draw.exe</span>
+        <span style="cursor:default">X</span>
     </div>
-
-    <div id="app">
-        <div class="status-bar">
-            <span id="ui-id">UNIT: 087 / TZ: UTC...</span>
-            <div>
-                <span id="weather-tag">ENV: SCANNING...</span>
-                <span id="lang-toggle" onclick="toggleLang()" style="margin-left:8px; border:1px solid var(--main-green); padding:0 4px; cursor:pointer;">EN</span>
-            </div>
-        </div>
-        
-        <div class="wireframe-container">
-            <div class="logo-wrapper" id="q-wrapper">
-                <canvas id="fire-canvas"></canvas>
-                <div class="main-logo" id="target-visual">
-                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M11 20H37V22H39V24H41V26H43V32H45V34H47V36H49V38H51V40H53V42H55V44H57V46H59V48H61V50H63V52H65V54H67V56H69V60H71V62H73V64H75V68H13V66H11V64H13V62H15V60H17V58H19V56H21V54H19V52H21V50H19V48H17V46H15V44H13V42H11V40H13V38H11V36H13V34H11V32H13V30H11V28H9V22H11V20Z"/>
-                        <path d="M15 30H19V32H15V30Z"/>
-                        <path d="M15 34H19V36H15V34Z"/>
-                        <path d="M15 38H19V40H15V38Z"/>
-                        <path d="M13 22H17V24H13V22Z"/>
-                        <path d="M13 26H17V28H13V26Z"/>
-                        <path d="M21 22H25V24H21V22Z"/>
-                        <path d="M21 26H25V28H21V26Z"/>
-                        <path d="M21 30H25V32H21V30Z"/>
-                        <path d="M21 34H25V36H21V34Z"/>
-                        <path d="M21 38H25V40H21V38Z"/>
-                        <path d="M17 24V26H19V24H17Z"/>
-                        <path d="M17 32V34H19V32H17Z"/>
-                        <path d="M13 42H17V44H13V42Z"/>
-                        <path d="M17 40V42H19V40H17Z"/>
-                        <path d="M19 44V46H21V44H19Z"/>
-                        <path d="M17 48V50H19V48H17Z"/>
-                        <path d="M19 52V54H21V52H19Z"/>
-                        <path d="M23 42H27V44H23V42Z"/>
-                        <path d="M23 48H27V50H23V48Z"/>
-                        <path d="M17 56V58H19V56H17Z"/>
-                        <path d="M21 46V48H23V46H21Z"/>
-                        <path d="M21 54V56H23V54H21Z"/>
-                        <path d="M21 50V52H23V50H21Z"/>
-                        <path d="M13 46V48H15V46H13Z"/>
-                        <path d="M13 50V52H15V50H13Z"/>
-                        <path d="M13 54V56H15V54H13Z"/>
-                        <path d="M15 62V64H17V62H15Z"/>
-                        <path d="M17 60V62H19V60H17Z"/>
-                        <path d="M17 64H21V66H17V64Z"/>
-                        <path d="M21 62V64H23V62H21Z"/>
-                        <path d="M23 60V62H25V60H23Z"/>
-                        <path d="M21 66V68H23V66H21Z"/>
-                        <path d="M25 64V66H27V64H25Z"/>
-                        <path d="M31 22V24H33V22H31Z"/>
-                        <path d="M31 26V28H33V26H31Z"/>
-                        <path d="M33 24V26H35V24H33Z"/>
-                        <path d="M31 32H35V34H31V32Z"/>
-                        <path d="M33 30V32H35V30H33Z"/>
-                        <path d="M35 22V24H37V22H35Z"/>
-                        <path d="M35 26V28H37V26H35Z"/>
-                        <path d="M35 28V30H37V28H35Z"/>
-                        <path d="M37 34V36H39V34H37Z"/>
-                        <path d="M39 36V38H41V36H39Z"/>
-                        <path d="M41 38V40H43V38H41Z"/>
-                        <path d="M35 44H39V46H35V44Z"/>
-                        <path d="M39 42V44H41V42H39Z"/>
-                        <path d="M41 40V42H43V40H41Z"/>
-                        <path d="M43 46H47V48H43V46Z"/>
-                        <path d="M41 44V46H43V44H41Z"/>
-                        <path d="M45 42V44H47V42H45Z"/>
-                        <path d="M47 40H51V42H47V40Z"/>
-                        <path d="M45 40V42H47V40H45Z"/>
-                        <path d="M45 48V50H47V48H45Z"/>
-                        <path d="M47 50H51V52H47V50Z"/>
-                        <path d="M47 44V46H49V44H47Z"/>
-                        <path d="M49 46V48H51V46H49Z"/>
-                        <path d="M49 52V54H51V52H49Z"/>
-                        <path d="M51 54H55V56H51V54Z"/>
-                        <path d="M51 48V50H53V48H51Z"/>
-                        <path d="M53 50V52H55V50H53Z"/>
-                        <path d="M53 52V54H55V52H53Z"/>
-                        <path d="M53 56V58H55V56H53Z"/>
-                        <path d="M51 60H55V62H51V60Z"/>
-                        <path d="M53 62V64H55V62H53Z"/>
-                        <path d="M55 58V60H57V58H55Z"/>
-                        <path d="M55 64H59V66H55V64Z"/>
-                        <path d="M57 60V62H59V60H57Z"/>
-                        <path d="M59 62V64H61V62H59Z"/>
-                        <path d="M59 66H63V68H59V66Z"/>
-                        <path d="M63 64V66H65V64H63Z"/>
-                        <path d="M63 60H67V62H63V60Z"/>
-                        <path d="M63 56H67V58H63V56Z"/>
-                        <path d="M65 58V60H67V58H65Z"/>
-                        <path d="M63 52H67V54H63V52Z"/>
-                        <path d="M65 54V56H67V54H65Z"/>
-                        <path d="M63 48H67V50H63V48Z"/>
-                        <path d="M65 50V52H67V50H65Z"/>
-                        <path d="M67 46H71V48H67V46Z"/>
-                        <path d="M65 44H69V46H65V44Z"/>
-                        <path d="M69 44V46H71V44H69Z"/>
-                        <path d="M71 42H75V44H71V42Z"/>
-                        <path d="M71 38V40H73V38H71Z"/>
-                        <path d="M71 34H75V36H71V34Z"/>
-                        <path d="M73 36V38H75V36H73Z"/>
-                        <path d="M73 40V42H75V40H73Z"/>
-                        <path d="M71 46V48H73V46H71Z"/>
-                        <path d="M67 36H71V38H67V36Z"/>
-                        <path d="M69 34V36H71V34H69Z"/>
-                        <path d="M69 38V40H71V38H69Z"/>
-                        <path d="M63 32H67V34H63V32Z"/>
-                        <path d="M65 30V32H67V30H65Z"/>
-                        <path d="M65 34V36H67V34H65Z"/>
-                        <path d="M61 24H65V26H61V24Z"/>
-                        <path d="M63 22V24H65V22H63Z"/>
-                        <path d="M63 26V28H65V26H63Z"/>
-                        <path d="M69 20H73V22H69V20Z"/>
-                        <path d="M73 22H77V24H73V22Z"/>
-                        <path d="M77 24H81V26H77V24Z"/>
-                        <path d="M81 26H85V28H81V26Z"/>
-                        <path d="M85 28H89V30H85V28Z"/>
-                        <path d="M87 30H91V32H87V30Z"/>
-                        <path d="M89 32H93V34H89V32Z"/>
-                        <path d="M91 34H95V36H91V34Z"/>
-                        <path d="M93 36H97V38H93V36Z"/>
-                        <path d="M95 38H99V40H95V38Z"/>
-                        <path d="M81 30H85V32H81V30Z"/>
-                        <path d="M81 34H85V36H81V34Z"/>
-                        <path d="M81 38H85V40H81V38Z"/>
-                        <path d="M81 22V24H83V22H81Z"/>
-                        <path d="M83 24V26H85V24H83Z"/>
-                        <path d="M81 20H85V22H81V20Z"/>
-                        <path d="M77 20V22H79V20H77Z"/>
-                        <path d="M77 26V28H79V26H77Z"/>
-                        <path d="M61 38V40H63V38H61Z"/>
-                        <path d="M61 34V36H63V34H61Z"/>
-                        <path d="M61 30V32H63V30H61Z"/>
-                        <path d="M61 26V28H63V26H61Z"/>
-                        <path d="M59 28V30H61V28H59Z"/>
-                        <path d="M59 36V38H61V36H59Z"/>
-                        <path d="M59 32V34H61V32H59Z"/>
-                        <path d="M57 34H61V36H57V34Z"/>
-                        <path d="M57 30H61V32H57V30Z"/>
-                        <path d="M57 26V28H59V26H57Z"/>
-                        <path d="M57 22H61V24H57V22Z"/>
-                        <path d="M55 24V26H57V24H55Z"/>
-                        <path d="M55 32V34H57V32H55Z"/>
-                        <path d="M55 28V30H57V28H55Z"/>
-                        <path d="M55 20H59V22H55V20Z"/>
-                        <path d="M15 28H19V30H15V28Z"/>
-                        <path d="M11 26H13V28H11V26Z"/>
-                        <path d="M11 22H13V24H11V22Z"/>
-                        <path d="M11 30H13V32H11V30Z"/>
-                        <path d="M11 34H13V36H11V34Z"/>
-                        <path d="M11 38H13V40H11V38Z"/>
-                        <path d="M9 22H11V24H9V22Z"/>
-                    </svg>
-                </div>
-            </div>
-            <div class="wireframe-label" id="ui-core-label">FDM_WIRE_LIT / laKEY_CORE</div>
+    <div class="window-body">
+        <div id="ranks-grid">
+            <div class="rank-item"><span>戀愛</span><span class="rank-tag" id="rank-0">-</span></div>
+            <div class="rank-item"><span>金錢</span><span class="rank-tag" id="rank-1">-</span></div>
+            <div class="rank-item"><span>工作</span><span class="rank-tag" id="rank-2">-</span></div>
+            <div class="rank-item"><span>旅行</span><span class="rank-tag" id="rank-3">-</span></div>
+            <div class="rank-item"><span>健康</span><span class="rank-tag" id="rank-4">-</span></div>
+            <div class="rank-item"><span>整體</span><span class="rank-tag" id="rank-5">-</span></div>
         </div>
 
-        <div class="interaction-area">
-            <input type="text" id="wish-input" placeholder="" maxlength="20" autocomplete="off" oninput="playTypingSound()">
-            <div class="category-grid">
-                <button class="cat-btn" data-cat="marriage" onclick="setCat('marriage', this)">婚姻</button>
-                <button class="cat-btn" data-cat="wealth" onclick="setCat('wealth', this)">求財</button>
-                <button class="cat-btn" data-cat="career" onclick="setCat('career', this)">事業</button>
-                <button class="cat-btn" data-cat="exam" onclick="setCat('exam', this)">考試</button>
-                <button class="cat-btn" data-cat="travel" onclick="setCat('travel', this)">遠行</button>
-                <button class="cat-btn ignite-btn" id="ui-ignite-btn" onclick="ignite()"></button>
-            </div>
-        </div>
+        <div id="poem-display">點擊按鈕獲取今日運勢...</div>
+
+        <button onclick="startLuckyDraw()">[ 執行抽籤 ]</button>
     </div>
+</div>
 
-    <div id="result-overlay">
-        <p id="res-header" style="font-size: 11px; color: var(--main-green); border: 1px solid var(--main-green); padding: 6px 15px;"></p>
-        <div id="res-level" class="level-display"></div>
-        <p id="res-desc"></p>
-        <button id="ui-cooling-btn" onclick="location.reload()" style="margin-top: 40px; background: transparent; border: 1px solid var(--main-green); color: var(--main-green); padding: 15px 40px; font-size: 11px; letter-spacing: 2px; cursor:pointer;"></button>
-    </div>
+<script>
+    const raritySettings = [
+        { rank: "SSSR", weight: 1,  class: "rank-sssr" },
+        { rank: "SSR",  weight: 4,  class: "rank-ssr"  },
+        { rank: "SP",   weight: 5,  class: "rank-sp"   },
+        { rank: "SR",   weight: 15, class: "rank-sr"   },
+        { rank: "R",    weight: 45, class: "rank-r"    },
+        { rank: "N",    weight: 30, class: "rank-n"    }
+    ];
 
-    <script>
-        const i18n = {
-            zh: { placeholder: "> 注入你的意念 / INJECT INTENT", ignite: "執行鑑定 / IGNITE", coreLabel: "FDM_WIRE_LIT / laKEY_CORE", cooling: "系統冷卻 / RE-IGNITE", denied: "ACCESS_STATUS: DENIED", deniedDesc: "本系統需感應專屬載體啟動", marriage: "婚姻", wealth: "求財", career: "事業", exam: "考試", travel: "遠行" },
-            en: { placeholder: "> INJECT YOUR INTENT...", ignite: "EXECUTE / IGNITE", coreLabel: "FDM_WIRE_LIT / laKEY_CORE", cooling: "COOLING / RE-IGNITE", denied: "ACCESS_STATUS: DENIED", deniedDesc: "NFC TAG REQUIRED FOR ACCESS", marriage: "MARRIAGE", wealth: "WEALTH", career: "CAREER", exam: "EXAM", travel: "TRAVEL" }
-        };
+    async function startLuckyDraw() {
+        const btn = document.querySelector('button');
+        btn.disabled = true;
+        btn.innerText = "讀取中...";
 
-        let currentLang = localStorage.getItem('lakey_lang') || 'zh';
-        let messages = [];
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        try {
+            // 讀取 JSON
+            const response = await fetch('messages.json');
+            const poems = await response.json();
+            
+            // 1. 計算六項等級
+            for (let i = 0; i < 6; i++) {
+                const rand = Math.random() * 100;
+                let sum = 0;
+                let selected = raritySettings[raritySettings.length - 1];
 
-        // 8-bit 火焰邏輯
-        function initFire() {
-            const canvas = document.getElementById('fire-canvas');
-            const ctx = canvas.getContext('2d');
-            const w = 40, h = 60; canvas.width = w; canvas.height = h;
-            let pixels = new Array(w * h).fill(0);
-            function animate() {
-                for (let i = 0; i < w; i++) pixels[(h - 1) * w + i] = Math.random() > 0.4 ? 255 : 0;
-                for (let y = 0; y < h - 1; y++) {
-                    for (let x = 0; x < w; x++) {
-                        const idx = y * w + x;
-                        const below = (y + 1) * w + x;
-                        const decay = Math.floor(Math.random() * 25);
-                        pixels[idx] = Math.max(0, pixels[below] - decay);
+                for (const r of raritySettings) {
+                    sum += r.weight;
+                    if (rand <= sum) {
+                        selected = r;
+                        break;
                     }
                 }
-                ctx.clearRect(0, 0, w, h);
-                for (let i = 0; i < pixels.length; i++) {
-                    if (pixels[i] > 0) {
-                        ctx.fillStyle = `rgb(0, ${pixels[i]}, 0)`;
-                        ctx.fillRect(i % w, Math.floor(i / w), 1, 1);
-                    }
-                }
-                requestAnimationFrame(animate);
+                
+                const el = document.getElementById(`rank-${i}`);
+                el.innerText = selected.rank;
+                el.className = `rank-tag ${selected.class}`;
             }
-            animate();
-        }
 
-        async function loadMessages() {
-            try { const res = await fetch('messages.json'); messages = await res.json(); }
-            catch (e) { messages = ["SYSTEM_ERROR: MSG_LOAD_FAILED"]; }
-        }
-
-        // 天氣系統用占位符 (如果需要真實天氣，請填入有效 Key)
-        async function getWeather() {
-            document.getElementById('weather-tag').innerText = "ENV:Banqiao District local_scan";
-        }
-
-        function playTypingSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.02);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.02);
-        }
-
-        function playBeep(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            if (type === 'select') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-            } else if (type === 'ignite') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(110, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.6);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.6);
-            } else if (type === 'result') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(1320, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
-            }
-        }
-
-        function updateUILanguage() {
-            const lang = i18n[currentLang];
-            document.getElementById('wish-input').placeholder = lang.placeholder;
-            document.getElementById('ui-core-label').innerText = lang.coreLabel;
-            document.getElementById('ui-ignite-btn').innerText = lang.ignite;
-            document.getElementById('ui-cooling-btn').innerText = lang.cooling;
-            document.getElementById('ui-denied').innerText = lang.denied;
-            document.getElementById('ui-denied-desc').innerText = lang.deniedDesc;
-            document.getElementById('lang-toggle').innerText = currentLang === 'zh' ? 'EN' : '中文';
-            document.querySelectorAll('.cat-btn[data-cat]').forEach(btn => { btn.innerText = lang[btn.getAttribute('data-cat')]; });
-        }
-
-        function toggleLang() { playBeep('select'); currentLang = currentLang === 'zh' ? 'en' : 'zh'; localStorage.setItem('lakey_lang', currentLang); updateUILanguage(); }
-
-        const SECRET = "GF87CANDLE";
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('token') !== SECRET) {
-            document.getElementById('auth-error').style.display = 'flex';
-            updateUILanguage();
-        } else {
-            document.getElementById('app').style.display = 'flex';
-            window.history.replaceState({}, document.title, window.location.pathname);
-            updateUILanguage();
-            init();
-        }
-
-        function init() {
-            loadMessages();
-            initFire();
-            getWeather();
-            const offset = new Date().getTimezoneOffset() / -60;
-            const tz = offset >= 0 ? `+${offset}` : offset;
-            document.getElementById('ui-id').innerText = `UNIT: 087 / TZ: UTC${tz}`;
-            const last = JSON.parse(localStorage.getItem('lakey_record'));
-            if (last && last.date === new Date().toLocaleDateString()) showResult(last);
-        }
-
-        let currentCat = "";
-        const rarities = [{lv:'SSSR',c:2},{lv:'SSR',c:8},{lv:'SR',c:15},{lv:'R',c:30},{lv:'N',c:40},{lv:'SP',c:5}];
-
-        function setCat(k, b) {
-            currentCat = i18n[currentLang][k]; playBeep('select');
-            document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
-            b.classList.add('active');
-        }
-
-        async function ignite() {
-            const w = document.getElementById('wish-input').value;
-            if (!w || !currentCat) return;
-            if (messages.length === 0) await loadMessages();
-            playBeep('ignite');
+            // 2. 隨機抽取一條籤詩
+            // 支援 JSON 為陣列格式 ["A", "B"] 或物件格式 [{"text":"A"}]
+            const randomEntry = poems[Math.floor(Math.random() * poems.length)];
+            const poemContent = typeof randomEntry === 'string' ? randomEntry : (randomEntry.text || randomEntry.content);
             
-            // 觸發旋轉動畫
-            document.getElementById('target-visual').classList.add('is-igniting');
-            
-            const roll = Math.random() * 100;
-            let acc = 0, rarity = rarities[4];
-            for (const i of rarities) { acc += i.c; if (roll <= acc) { rarity = i; break; } }
-            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-            const rec = { date: new Date().toLocaleDateString(), cat: currentCat, wish: w, lv: rarity.lv, desc: randomMsg };
-            localStorage.setItem('lakey_record', JSON.stringify(rec));
-            setTimeout(() => showResult(rec), 2000);
-        }
+            document.getElementById('poem-display').innerText = poemContent;
 
-        function showResult(r) {
-            playBeep('result');
-            document.getElementById('result-overlay').style.display = 'flex';
-            document.getElementById('res-header').innerText = `ID: ${r.cat} / INTENT: ${r.wish}`;
-            const lvEl = document.getElementById('res-level');
-            lvEl.innerText = r.lv;
-            lvEl.className = 'level-display ' + r.lv.toLowerCase();
-            document.getElementById('res-desc').innerText = r.desc;
+        } catch (error) {
+            document.getElementById('poem-display').innerText = "找不到 messages.json，請確認檔案路徑！";
+            console.error(error);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "[ 重新抽籤 ]";
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
