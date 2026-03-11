@@ -3,197 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Draw - GOODFUN TEAM</title>
+    <title>VAULT-TEC LUCK TERMINAL x GOODFUN</title>
     <style>
         :root {
-            --win-gray: #c0c0c0;
-            --win-blue: #000080;
-            --win-border-light: #ffffff;
-            --win-border-dark: #808080;
+            --pip-green: #18ff62;
+            --pip-bg: #0c120c;
+            --pip-dim: #063d17;
+            --pip-error: #ff3b3b;
         }
 
         body {
-            background-color: #008080; /* Win98 經典綠色背景 */
-            font-family: "Microsoft JhengHei", "PMingLiU", sans-serif;
+            background-color: var(--pip-bg);
+            color: var(--pip-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
+            text-transform: uppercase;
+            overflow: hidden;
         }
 
-        /* Windows 98 視窗樣式 */
-        .window {
-            width: 350px;
-            background: var(--win-gray);
-            border: 2px solid;
-            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
-            box-shadow: 1px 1px 0 0 #000;
-            padding: 2px;
+        /* 螢幕掃描線特效層 */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 100;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
         }
 
-        .title-bar {
-            background: var(--win-blue);
-            color: white;
-            padding: 3px 6px;
+        /* 鎖定畫面 */
+        #lock-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--pip-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            border: 15px solid var(--pip-dim);
+        }
+
+        /* LOGO 容器與旋轉動畫 */
+        #logo-container {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+            transition: transform 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+
+        /* 初始慢速旋轉 */
+        .rotate-slow {
+            animation: spin 8s linear infinite;
+        }
+
+        /* 抽籤時的高速旋轉 */
+        .rotate-fast {
+            animation: spin 0.2s linear infinite !important;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 主視窗容器 */
+        .terminal-window {
+            display: none;
+            width: 90%;
+            max-width: 480px;
+            border: 2px solid var(--pip-green);
+            padding: 20px;
+            box-shadow: 0 0 20px var(--pip-dim);
+            position: relative;
+        }
+
+        .header {
+            border-bottom: 2px solid var(--pip-green);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            font-size: 1rem;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            font-weight: bold;
         }
 
-        .window-body {
-            padding: 15px;
-        }
-
-        /* 運勢等級樣式 */
-        #ranks-grid {
+        /* 運勢等級列表 */
+        .ranks-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .rank-item {
-            background: #eee;
-            border: 1px inset var(--win-border-light);
-            padding: 5px;
+            border: 1px solid var(--pip-green);
+            padding: 6px 10px;
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
+            font-size: 0.85rem;
         }
 
-        /* 等級顏色與動畫 */
-        .rank-tag { font-weight: bold; padding: 0 4px; }
-        .rank-sssr { background: linear-gradient(45deg, #ffd700, #fff, #ffd700); animation: shine 1.5s infinite; color: #000; border: 1px solid #000; }
-        .rank-ssr { background: #ff00ff; color: #fff; }
-        .rank-sp { background: #000; color: #0ff; text-shadow: 1px 0 #f0f; animation: glitch 0.3s infinite; }
-        .rank-sr { background: #ffa500; color: #fff; }
-        .rank-r { background: #fff; color: #333; }
-        .rank-n { background: #888; color: #ccc; }
+        .tag { font-weight: bold; }
+        .sssr { background: var(--pip-green); color: var(--pip-bg); animation: flicker 0.1s infinite; }
+        .sp { border: 1px dashed var(--pip-green); text-decoration: line-through; }
 
-        @keyframes shine {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        @keyframes flicker {
+            0% { opacity: 0.7; } 100% { opacity: 1; }
         }
 
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            50% { transform: translate(-1px, 1px); }
-            100% { transform: translate(1px, -1px); }
-        }
-
-        /* 籤詩顯示區域 */
+        /* 籤詩內容 */
         #poem-display {
-            background: white;
-            border: 2px inset var(--win-border-dark);
-            min-height: 80px;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 16px;
+            font-size: 1.2rem;
+            border: 1px solid var(--pip-green);
+            padding: 25px;
+            min-height: 100px;
             text-align: center;
+            background: rgba(24, 255, 98, 0.03);
             display: flex;
             align-items: center;
             justify-content: center;
-            line-height: 1.5;
         }
 
         button {
             width: 100%;
-            padding: 8px;
-            background: var(--win-gray);
-            border: 2px solid;
-            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
-            cursor: pointer;
+            background: transparent;
+            color: var(--pip-green);
+            border: 2px solid var(--pip-green);
+            padding: 15px;
+            margin-top: 15px;
             font-family: inherit;
-            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
         }
 
-        button:active {
-            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
-        }
+        button:hover { background: var(--pip-green); color: var(--pip-bg); }
+        button:disabled { border-color: var(--pip-dim); color: var(--pip-dim); cursor: wait; }
+
+        .blink { animation: blink-anim 1s steps(2, start) infinite; }
+        @keyframes blink-anim { to { visibility: hidden; } }
     </style>
 </head>
 <body>
 
-<div class="window">
-    <div class="title-bar">
-        <span>Lucky_Draw.exe</span>
-        <span style="cursor:default">X</span>
+<div id="lock-screen">
+    <div id="logo-container" class="rotate-slow">
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="45" stroke-width="2"/>
+            <path d="M50 20V80M20 50H80" stroke-width="4"/>
+            </svg>
     </div>
-    <div class="window-body">
-        <div id="ranks-grid">
-            <div class="rank-item"><span>戀愛</span><span class="rank-tag" id="rank-0">-</span></div>
-            <div class="rank-item"><span>金錢</span><span class="rank-tag" id="rank-1">-</span></div>
-            <div class="rank-item"><span>工作</span><span class="rank-tag" id="rank-2">-</span></div>
-            <div class="rank-item"><span>旅行</span><span class="rank-tag" id="rank-3">-</span></div>
-            <div class="rank-item"><span>健康</span><span class="rank-tag" id="rank-4">-</span></div>
-            <div class="rank-item"><span>整體</span><span class="rank-tag" id="rank-5">-</span></div>
+    <div id="status-text">> SYSTEM_LOCKED</div>
+    <p class="blink" style="font-size: 0.8rem;">[ 感應 NFC 標籤以授權 ]</p>
+    
+    <div onclick="unlock()" style="cursor:pointer; font-size: 9px; opacity: 0.2; margin-top: 20px;">[ ADMIN_OVERRIDE ]</div>
+</div>
+
+<div class="terminal-window" id="app">
+    <div class="header">
+        <span>VAULT-TEC MONITOR</span>
+        <span id="terminal-time">V.3.11</span>
+    </div>
+    
+    <div class="ranks-grid" id="ranks-container">
         </div>
 
-        <div id="poem-display">點擊按鈕獲取今日運勢...</div>
+    <div id="poem-display">WAINTING FOR COMMAND...</div>
 
-        <button onclick="startLuckyDraw()">[ 執行抽籤 ]</button>
-    </div>
+    <button id="draw-btn" onclick="executeDraw()">[ EXECUTE RANDOM_LUCK.EXE ]</button>
 </div>
 
 <script>
-    const raritySettings = [
-        { rank: "SSSR", weight: 1,  class: "rank-sssr" },
-        { rank: "SSR",  weight: 4,  class: "rank-ssr"  },
-        { rank: "SP",   weight: 5,  class: "rank-sp"   },
-        { rank: "SR",   weight: 15, class: "rank-sr"   },
-        { rank: "R",    weight: 45, class: "rank-r"    },
-        { rank: "N",    weight: 30, class: "rank-n"    }
+    const rarity = [
+        { name: "SSSR", w: 1, c: "sssr" },
+        { name: "SSR",  w: 4, c: "ssr"  },
+        { name: "SP",   w: 5, c: "sp"   },
+        { name: "SR",   w: 15, c: ""    },
+        { name: "R",    w: 45, c: ""    },
+        { name: "N",    w: 30, c: ""    }
     ];
+    const categories = ["LOVE", "WEALTH", "CAREER", "TRAVEL", "HEALTH", "OVERALL"];
 
-    async function startLuckyDraw() {
-        const btn = document.querySelector('button');
-        btn.disabled = true;
-        btn.innerText = "讀取中...";
+    function unlock() {
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+    }
+
+    // NFC 監聽
+    if ('NDEFReader' in window) {
+        const ndef = new NDEFReader();
+        ndef.scan().then(() => {
+            ndef.onreading = () => unlock();
+        }).catch(err => console.log("NFC not available"));
+    }
+
+    async function executeDraw() {
+        const btn = document.getElementById('draw-btn');
+        const logo = document.getElementById('logo-container');
+        const poemBox = document.getElementById('poem-display');
+        
+        // 1. 進入高速旋轉狀態
+        document.getElementById('lock-screen').style.display = 'flex'; // 暫時顯示 Logo 回來旋轉
+        document.getElementById('app').style.display = 'none';
+        logo.classList.remove('rotate-slow');
+        logo.classList.add('rotate-fast');
+        document.getElementById('status-text').innerText = "> OVERLOADING...";
 
         try {
-            // 讀取 JSON
-            const response = await fetch('messages.json');
-            const poems = await response.json();
+            const res = await fetch('messages.json');
+            const poems = await res.json();
             
-            // 1. 計算六項等級
-            for (let i = 0; i < 6; i++) {
+            // 模擬計算時間 (2秒)
+            await new Promise(r => setTimeout(r, 2000));
+
+            // 2. 計算結果
+            let rankHtml = '';
+            categories.forEach(cat => {
                 const rand = Math.random() * 100;
-                let sum = 0;
-                let selected = raritySettings[raritySettings.length - 1];
-
-                for (const r of raritySettings) {
-                    sum += r.weight;
-                    if (rand <= sum) {
-                        selected = r;
-                        break;
-                    }
+                let sum = 0, sel = rarity[rarity.length-1];
+                for(let r of rarity) {
+                    sum += r.w;
+                    if(rand <= sum) { sel = r; break; }
                 }
-                
-                const el = document.getElementById(`rank-${i}`);
-                el.innerText = selected.rank;
-                el.className = `rank-tag ${selected.class}`;
-            }
+                rankHtml += `<div class="rank-item"><span>${cat}:</span><span class="tag ${sel.c}">${sel.name}</span></div>`;
+            });
 
-            // 2. 隨機抽取一條籤詩
-            // 支援 JSON 為陣列格式 ["A", "B"] 或物件格式 [{"text":"A"}]
-            const randomEntry = poems[Math.floor(Math.random() * poems.length)];
-            const poemContent = typeof randomEntry === 'string' ? randomEntry : (randomEntry.text || randomEntry.content);
+            const lucky = poems[Math.floor(Math.random() * poems.length)];
+            const text = typeof lucky === 'string' ? lucky : lucky.text;
+
+            // 3. 揭曉結果
+            document.getElementById('ranks-container').innerHTML = rankHtml;
+            poemBox.innerText = "> " + text;
             
-            document.getElementById('poem-display').innerText = poemContent;
+            // 回到終端機畫面
+            document.getElementById('lock-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            logo.classList.remove('rotate-fast');
+            logo.classList.add('rotate-slow');
 
-        } catch (error) {
-            document.getElementById('poem-display').innerText = "找不到 messages.json，請確認檔案路徑！";
-            console.error(error);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "[ 重新抽籤 ]";
+        } catch (e) {
+            poemBox.innerText = "> ERROR: DATA_CORRUPTED";
         }
     }
 </script>
-
 </body>
 </html>
