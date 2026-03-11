@@ -14,33 +14,73 @@
         }
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; box-sizing: border-box; }
         input { user-select: auto; -webkit-user-select: auto; }
+        
         body, html {
             margin: 0; padding: 0; background-color: var(--bg-color); color: var(--main-green);
             font-family: 'Courier New', Courier, monospace; height: 100dvh; width: 100vw; overflow: hidden;
         }
+
+        /* 認證錯誤畫面 */
         #auth-error { display: none; padding: 40px; justify-content: center; align-items: center; height: 100%; text-align: center; }
+        
+        /* 主 App 容器 */
         #app { display: none; padding: 20px 25px calc(20px + var(--safe-bottom)); flex-direction: column; height: 100%; }
+
+        /* 狀態列 */
         .status-bar {
             font-size: 9px; border-bottom: 2px solid var(--main-green); padding-bottom: 8px; 
             margin-top: env(safe-area-inset-top); display: flex; justify-content: space-between; letter-spacing: 0.5px;
         }
-        .wireframe-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .wireframe-box { width: 90px; height: 140px; border: 1.5px solid var(--main-green); position: relative; animation: rotate 7s linear infinite; }
-        .wireframe-label { margin-top: 40px; font-size: 9px; letter-spacing: 2px; opacity: 0.7; }
-        input[type="text"] {
-            width: 100%; background: transparent; border: 1.5px solid var(--main-green);
-            color: var(--main-green); padding: 16px; margin-bottom: 12px; outline: none; font-size: 16px; border-radius: 0;
+
+        /* 核心視覺區：線框箱子 + 8-bit 火焰 */
+        .wireframe-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+        .wireframe-box { 
+            width: 100px; height: 150px; border: 1.5px solid var(--main-green); 
+            position: relative; animation: rotate 7s linear infinite;
+            display: flex; justify-content: center; align-items: flex-end; /* 火焰靠底 */
+            overflow: hidden;
         }
+        
+        /* 像素畫布設置 */
+        #fire-canvas {
+            width: 80%; height: 60%;
+            image-rendering: pixelated; /* 強制像素硬邊 */
+            opacity: 0.9;
+            filter: drop-shadow(0 0 5px var(--main-green));
+        }
+
+        .wireframe-label { margin-top: 20px; font-size: 9px; letter-spacing: 2px; opacity: 0.7; }
+
+        /* 輸入區域：儀式感優化 */
+        input[type="text"] {
+            width: 100%; background: rgba(0, 255, 65, 0.05); border: 1.5px solid var(--main-green);
+            color: var(--main-green); padding: 18px; margin-bottom: 12px; outline: none; 
+            font-size: 16px; border-radius: 0; text-align: center; letter-spacing: 2px;
+            transition: all 0.3s; box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.1);
+        }
+        input[type="text"]:focus {
+            background: rgba(0, 255, 65, 0.12); border-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3), inset 0 0 10px rgba(0, 255, 65, 0.2);
+        }
+        input[type="text"]::placeholder { color: var(--main-green); opacity: 0.3; font-size: 13px; }
+
         .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .cat-btn { background: transparent; border: 1px solid var(--main-green); color: var(--main-green); padding: 14px 0; font-size: 13px; }
         .cat-btn.active { background: var(--main-green); color: #000; font-weight: bold; }
-        .ignite-btn { grid-column: span 3; margin-top: 8px; border: 2px solid var(--gold); color: var(--gold); font-weight: bold; padding: 18px 0; letter-spacing: 4px; }
+        .ignite-btn { 
+            grid-column: span 3; margin-top: 8px; border: 2px solid var(--gold); 
+            color: var(--gold); font-weight: bold; padding: 18px 0; letter-spacing: 4px; 
+            background: rgba(255, 204, 0, 0.05);
+        }
+
+        /* 結果覆蓋層 */
         #result-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-color); z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
         }
         .level-display { font-size: 80px; font-weight: bold; line-height: 1; margin: 10px 0; }
         #res-desc { max-width: 90%; line-height: 1.6; font-size: 17px; margin: 20px 0; }
+        
         @keyframes rotate { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
         .sssr { color: var(--gold); text-shadow: 0 0 20px var(--gold); animation: pulse 0.6s infinite alternate; }
         .sp { color: var(--error-red); animation: glitch 0.1s infinite; }
@@ -66,12 +106,16 @@
                 <span id="lang-toggle" onclick="toggleLang()" style="margin-left:8px; border:1px solid var(--main-green); padding:0 4px; cursor:pointer;">EN</span>
             </div>
         </div>
+        
         <div class="wireframe-container">
-            <div class="wireframe-box"></div>
+            <div class="wireframe-box">
+                <canvas id="fire-canvas"></canvas>
+            </div>
             <div class="wireframe-label" id="ui-core-label">FDM_WIRE_LIT / laKEY_CORE</div>
         </div>
+
         <div class="interaction-area">
-            <input type="text" id="wish-input" placeholder="" maxlength="20" autocomplete="off">
+            <input type="text" id="wish-input" placeholder="" maxlength="20" autocomplete="off" oninput="playTypingSound()">
             <div class="category-grid">
                 <button class="cat-btn" data-cat="marriage" onclick="setCat('marriage', this)">婚姻</button>
                 <button class="cat-btn" data-cat="wealth" onclick="setCat('wealth', this)">求財</button>
@@ -93,12 +137,12 @@
     <script>
         const i18n = {
             zh: {
-                placeholder: "> 寫入鑑定內容...", marriage: "婚姻", wealth: "求財", career: "事業", exam: "考試", travel: "遠行",
+                placeholder: "> 注入你的意念 / INJECT INTENT", marriage: "婚姻", wealth: "求財", career: "事業", exam: "考試", travel: "遠行",
                 ignite: "執行鑑定 / IGNITE", coreLabel: "FDM_WIRE_LIT / laKEY_CORE", cooling: "系統冷卻 / RE-IGNITE",
                 denied: "ACCESS_STATUS: DENIED", deniedDesc: "本系統需感應專屬載體啟動", scanning: "ENV: 掃描中..."
             },
             en: {
-                placeholder: "> WRITE CONTENT...", marriage: "MARRIAGE", wealth: "WEALTH", career: "CAREER", exam: "EXAM", travel: "TRAVEL",
+                placeholder: "> INJECT YOUR INTENT...", marriage: "MARRIAGE", wealth: "WEALTH", career: "CAREER", exam: "EXAM", travel: "TRAVEL",
                 ignite: "EXECUTE / IGNITE", coreLabel: "FDM_WIRE_LIT / laKEY_CORE", cooling: "COOLING / RE-IGNITE",
                 denied: "ACCESS_STATUS: DENIED", deniedDesc: "NFC TAG REQUIRED FOR ACCESS", scanning: "ENV: SCANNING..."
             }
@@ -108,12 +152,75 @@
         let messages = [];
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+        // --- 8-bit 火焰邏輯 ---
+        function initFire() {
+            const canvas = document.getElementById('fire-canvas');
+            const ctx = canvas.getContext('2d');
+            const w = 30, h = 50; // 低解析度定義
+            canvas.width = w; canvas.height = h;
+            let pixels = new Array(w * h).fill(0);
+
+            function animate() {
+                // 底部熱源
+                for (let i = 0; i < w; i++) {
+                    pixels[(h - 1) * w + i] = Math.random() > 0.4 ? 255 : 0;
+                }
+                // 向上演算
+                for (let y = 0; y < h - 1; y++) {
+                    for (let x = 0; x < w; x++) {
+                        const idx = y * w + x;
+                        const below = (y + 1) * w + x;
+                        const decay = Math.floor(Math.random() * 25);
+                        pixels[idx] = Math.max(0, pixels[below] - decay);
+                    }
+                }
+                // 繪製
+                ctx.clearRect(0, 0, w, h);
+                for (let i = 0; i < pixels.length; i++) {
+                    if (pixels[i] > 0) {
+                        ctx.fillStyle = `rgb(0, ${pixels[i]}, 0)`;
+                        ctx.fillRect(i % w, Math.floor(i / w), 1, 1);
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
         async function loadMessages() {
             try {
                 const res = await fetch('messages.json');
                 messages = await res.json();
-            } catch (e) {
-                messages = ["SYSTEM_ERROR: MSG_LOAD_FAILED"];
+            } catch (e) { messages = ["SYSTEM_ERROR: MSG_LOAD_FAILED"]; }
+        }
+
+        function playTypingSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.02);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.02);
+        }
+
+        function playBeep(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (type === 'select') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'ignite') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.6);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+            } else if (type === 'result') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(1320, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             }
         }
 
@@ -138,26 +245,6 @@
             updateUILanguage();
         }
 
-        function playBeep(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            if (type === 'select') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-            } else if (type === 'ignite') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(110, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.6);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.6);
-            } else if (type === 'result') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(1320, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
-            }
-        }
-
         const SECRET = "GF87CANDLE";
         const params = new URLSearchParams(window.location.search);
         if (params.get('token') !== SECRET) {
@@ -172,27 +259,12 @@
 
         function init() {
             loadMessages();
+            initFire(); // 啟動像素火焰
             const offset = new Date().getTimezoneOffset() / -60;
             const tz = offset >= 0 ? `+${offset}` : offset;
             document.getElementById('ui-id').innerText = `UNIT: 087 / TZ: UTC${tz}`;
             const last = JSON.parse(localStorage.getItem('lakey_record'));
             if (last && last.date === new Date().toLocaleDateString()) showResult(last);
-            getWeather();
-        }
-
-        async function getWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (p) => {
-                    try {
-                        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${p.coords.latitude}&lon=${p.coords.longitude}&units=metric&appid=YOUR_API_KEY&lang=zh_tw`);
-                        const d = await res.json();
-                        const temp = Math.round(d.main.temp);
-                        document.getElementById('weather-tag').innerText = `ENV: ${d.name.toUpperCase()} ${temp}°C`;
-                        if (temp <= 15) document.documentElement.style.setProperty('--main-green', '#00f2ff');
-                        else if (temp >= 30) document.documentElement.style.setProperty('--main-green', '#ff4e00');
-                    } catch (e) { document.getElementById('weather-tag').innerText = "ENV: LOCAL_SCAN"; }
-                }, () => document.getElementById('weather-tag').innerText = "ENV: LOCAL_SCAN");
-            }
         }
 
         let currentCat = "";
@@ -207,11 +279,14 @@
 
         async function ignite() {
             const w = document.getElementById('wish-input').value;
-            if (!w || !currentCat) return alert(currentLang === 'zh' ? "請寫入鑑定內容並選取類別" : "Please write something and select a category");
+            if (!w || !currentCat) return;
             if (messages.length === 0) await loadMessages();
             playBeep('ignite');
             if (navigator.vibrate) navigator.vibrate([100, 30, 200]);
-            document.querySelector('.wireframe-box').style.animationDuration = '0.3s';
+            
+            // 加速旋轉與火焰
+            document.querySelector('.wireframe-box').style.animationDuration = '0.4s';
+            
             const roll = Math.random() * 100;
             let acc = 0, rarity = rarities[4];
             for (const i of rarities) { acc += i.c; if (roll <= acc) { rarity = i; break; } }
@@ -224,7 +299,7 @@
         function showResult(r) {
             playBeep('result');
             document.getElementById('result-overlay').style.display = 'flex';
-            document.getElementById('res-header').innerText = `ID: ${r.cat} / MSG: ${r.wish}`;
+            document.getElementById('res-header').innerText = `ID: ${r.cat} / INTENT: ${r.wish}`;
             const lvEl = document.getElementById('res-level');
             lvEl.innerText = r.lv;
             lvEl.className = 'level-display ' + r.lv.toLowerCase();
