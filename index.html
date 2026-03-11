@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>laKEY Candle</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --main-green: #00ff41;
+            --error-red: #ff3e3e;
+            --gold: #ffcc00;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--main-green);
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        /* --- NFC 守門員畫面 --- */
+        #auth-error {
+            display: none;
+            padding: 30px;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            box-sizing: border-box;
+            background: #000;
+        }
+
+        /* --- 主容器 --- */
+        #app { display: none; padding: 25px; flex-direction: column; height: 100%; box-sizing: border-box; }
+
+        /* --- 系統狀態列 --- */
+        .status-bar {
+            font-size: 10px;
+            border-bottom: 2px solid var(--main-green);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            display: flex; justify-content: space-between;
+            letter-spacing: 1px;
+        }
+
+        /* --- 3D 線稿載入區 --- */
+        .wireframe-container {
+            flex: 1;
+            display: flex; justify-content: center; align-items: center;
+            position: relative;
+        }
+        .wireframe-box {
+            width: 110px; height: 170px;
+            border: 1.5px solid var(--main-green);
+            position: relative;
+            animation: rotate 7s linear infinite;
+        }
+        .wireframe-box::after {
+            content: "";
+            position: absolute; top: -10px; left: 50%; width: 2px; height: 10px;
+            background: var(--main-green); transform: translateX(-50%);
+        }
+        .wireframe-label {
+            position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; white-space: nowrap; letter-spacing: 2px;
+        }
+        @keyframes rotate { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+
+        /* --- 互動介面 --- */
+        input[type="text"] {
+            width: 100%;
+            background: transparent;
+            border: 1.5px solid var(--main-green);
+            color: var(--main-green);
+            padding: 15px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            outline: none;
+            font-size: 16px;
+        }
+        .category-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .cat-btn {
+            background: transparent;
+            border: 1px solid var(--main-green);
+            color: var(--main-green);
+            padding: 12px 0;
+            font-size: 13px;
+        }
+        .cat-btn.active { background: var(--main-green); color: #000; box-shadow: 0 0 15px var(--main-green); }
+        .ignite-btn {
+            grid-column: span 3;
+            margin-top: 15px;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            font-weight: bold;
+            padding: 18px 0;
+            letter-spacing: 3px;
+        }
+
+        /* --- 結果彈窗 --- */
+        #result-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            z-index: 100;
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+        }
+        .level-display { font-size: 110px; font-weight: bold; margin: 10px 0; }
+        .sssr { color: var(--gold); text-shadow: 0 0 30px var(--gold); animation: pulse 0.6s infinite alternate; }
+        .sp { color: var(--error-red); animation: glitch 0.12s infinite; text-shadow: 2px 2px #fff; }
+        
+        @keyframes pulse { from { opacity: 0.5; transform: scale(0.95); } to { opacity: 1; transform: scale(1.05); } }
+        @keyframes glitch { 0% { transform: translate(3px, 2px); } 100% { transform: translate(-3px, -2px); } }
+    </style>
+</head>
+<body>
+
+    <div id="auth-error">
+        <div>
+            <h1 style="color: var(--error-red); font-size: 28px; letter-spacing: -1px;">[ laKEY Candle ]</h1>
+            <p style="margin: 20px 0;">ACCESS_STATUS: DENIED</p>
+            <p style="font-size: 12px; opacity: 0.7; line-height: 1.6;">本系統僅限持有「laKEY Candle」實體鑰匙圈者進入。<br>請感應底卡 NFC 核心啟動讀取。</p>
+        </div>
+    </div>
+
+    <div id="app">
+        <div class="status-bar">
+            <span>UNIT: laKEY_UNIT_087</span>
+            <span id="weather-tag">ENV: SCANNING...</span>
+        </div>
+
+        <div class="wireframe-container">
+            <div class="wireframe-box"></div>
+            <div class="wireframe-label">laKEY_CORE_LOADING...</div>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="wish-input" placeholder="> 寫入祈願內容..." maxlength="20">
+            <div class="category-grid">
+                <button class="cat-btn" onclick="setCat('婚姻', this)">婚姻</button>
+                <button class="cat-btn" onclick="setCat('求財', this)">求財</button>
+                <button class="cat-btn" onclick="setCat('事業', this)">事業</button>
+                <button class="cat-btn" onclick="setCat('考試', this)">考試</button>
+                <button class="cat-btn" onclick="setCat('遠行', this)">遠行</button>
+                <button class="cat-btn ignite-btn" onclick="ignite()">執行鑑定 / IGNITE</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-overlay">
+        <p id="res-header" style="font-size: 12px; color: var(--main-green); border: 1px solid var(--main-green); padding: 5px 15px;"></p>
+        <div id="res-level" class="level-display"></div>
+        <p id="res-desc" style="max-width: 80%; line-height: 1.8; font-size: 15px;"></p>
+        <button onclick="location.reload()" style="margin-top: 60px; background: transparent; border: 1px solid var(--main-green); color: var(--main-green); padding: 12px 30px; font-size: 11px; letter-spacing: 2px;">系統重置 / RE-IGNITE</button>
+    </div>
+
+    <script>
+        // --- 核心防護 Token ---
+        const SECRET_TOKEN = "GF87CANDLE"; 
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (urlParams.get('token') !== SECRET_TOKEN) {
+            document.getElementById('auth-error').style.display = 'flex';
+        } else {
+            document.getElementById('app').style.display = 'flex';
+            window.history.replaceState({}, document.title, window.location.pathname);
+            initApp();
+        }
+
+        let currentCat = "";
+        const pool = [
+            { lv: 'SSSR', chance: 2,  text: '核心金光滿溢。此願必成，萬事大吉。' },
+            { lv: 'SSR',  chance: 8,  text: '結構穩定升騰。運勢極佳，順風順水。' },
+            { lv: 'SR',   chance: 15, text: '局部火光躍動。小小好運正在生成中。' },
+            { lv: 'R',    chance: 30, text: '運行燃燒平穩。一切如常，平穩即是吉。' },
+            { lv: 'N',    chance: 40, text: '火光能量蓄積中。平凡中隱藏未來的轉機。' },
+            { lv: 'SP',   chance: 5,  text: '系統偵測到異常跳動。可能帶來意外轉折。' }
+        ];
+
+        function initApp() {
+            const today = new Date().toLocaleDateString();
+            const last = JSON.parse(localStorage.getItem('lakey_record'));
+            if (last && last.date === today) {
+                renderResult(last);
+            }
+            getEnv();
+        }
+
+        async function getEnv() {
+            const tag = document.getElementById('weather-tag');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (p) => {
+                    try {
+                        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${p.coords.latitude}&lon=${p.coords.longitude}&units=metric&appid=YOUR_API_KEY&lang=zh_tw`);
+                        const d = await res.json();
+                        tag.innerText = `ENV: ${d.name.toUpperCase()} ${Math.round(d.main.temp)}°C`;
+                    } catch (e) { tag.innerText = "ENV: TAIPEI 18°C"; }
+                }, () => tag.innerText = "ENV: LOCAL_SCAN");
+            }
+        }
+
+        function setCat(c, b) {
+            currentCat = c;
+            document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
+
+        function ignite() {
+            const w = document.getElementById('wish-input').value;
+            if (!w || !currentCat) return alert("請寫入內容並選取鑑定類別");
+            
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            document.querySelector('.wireframe-box').style.animationDuration = '0.4s';
+
+            const roll = Math.random() * 100;
+            let acc = 0;
+            let res = pool[4];
+            for (const i of pool) {
+                acc += i.chance;
+                if (roll <= acc) { res = i; break; }
+            }
+
+            const rec = {
+                date: new Date().toLocaleDateString(),
+                cat: currentCat,
+                wish: w,
+                lv: res.lv,
+                desc: res.text
+            };
+
+            localStorage.setItem('lakey_record', JSON.stringify(rec));
+            setTimeout(() => renderResult(rec), 2200);
+        }
+
+        function renderResult(r) {
+            document.getElementById('result-overlay').style.display = 'flex';
+            document.getElementById('res-header').innerText = `ID: ${r.cat} / MSG: ${r.wish}`;
+            const lvEl = document.getElementById('res-level');
+            lvEl.innerText = r.lv;
+            lvEl.className = 'level-display ' + r.lv.toLowerCase();
+            document.getElementById('res-desc').innerText = r.desc;
+        }
+    </script>
+</body>
+</html>
