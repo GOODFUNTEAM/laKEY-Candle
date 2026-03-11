@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>laKEY-Candle: TERMINAL</title>
+    <title>laKEY-Candle: SURVIVAL_TERMINAL</title>
     <style>
         :root {
             --pip-green: #18ff62;
@@ -24,104 +24,136 @@
             overflow: hidden;
         }
 
-        /* 螢幕掃描線視覺 */
+        /* 經典掃描線 */
         body::before {
             content: " ";
             display: block;
             position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
             z-index: 100;
-            background-size: 100% 3px, 3px 100%;
+            background-size: 100% 3px;
             pointer-events: none;
+            opacity: 0.3;
         }
 
-        .container { width: 90%; max-width: 450px; text-align: center; z-index: 10; }
+        .container { width: 92%; max-width: 450px; text-align: center; z-index: 10; }
 
-        /* LOGO 動畫 */
-        #logo-svg { width: 150px; height: 150px; margin-bottom: 20px; transition: all 0.5s ease; }
+        #logo-svg { width: 100px; height: 100px; margin-bottom: 15px; }
         .spin-slow { animation: spin 10s linear infinite; opacity: 0.5; }
-        .spin-fast { animation: spin 0.15s linear infinite !important; filter: drop-shadow(0 0 15px var(--pip-green)); opacity: 1; }
+        .spin-fast { animation: spin 0.15s linear infinite !important; filter: drop-shadow(0 0 10px var(--pip-green)); }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .ui-box {
             border: 2px solid var(--pip-green);
-            padding: 20px;
+            padding: 15px;
             background: rgba(24, 255, 98, 0.02);
             box-shadow: 0 0 20px var(--pip-dim);
-            min-height: 240px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            text-align: left;
+            min-height: 350px;
         }
 
-        #main-status { margin-bottom: 10px; font-weight: bold; }
+        /* 環境報告區 */
+        #env-report {
+            font-size: 0.7rem;
+            line-height: 1.4;
+            border-bottom: 1px solid var(--pip-dim);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        #main-status { font-weight: bold; margin-bottom: 5px; text-align: center; }
         .blink { animation: blink-anim 1s steps(2, start) infinite; }
         @keyframes blink-anim { to { visibility: hidden; } }
 
-        /* 結果區 */
-        #result-area { display: none; margin-top: 15px; border-top: 1px solid var(--pip-dim); padding-top: 15px; }
-        .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.7rem; text-align: left; }
+        #result-area { display: none; }
+        .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.7rem; }
         .rank-item { border: 1px solid var(--pip-dim); padding: 4px; display: flex; justify-content: space-between; }
         .tag-sssr { background: var(--pip-green); color: var(--pip-bg); font-weight: bold; }
-        #poem-text { font-size: 1.2rem; margin: 15px 0; color: #fff; text-shadow: 0 0 5px var(--pip-green); }
+        
+        #poem-text { 
+            font-size: 1.1rem; 
+            margin: 15px 0; 
+            color: #fff; 
+            text-align: center;
+            text-shadow: 0 0 5px var(--pip-green); 
+            border: 1px dashed var(--pip-dim);
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="logo-wrapper">
-        <svg id="logo-svg" class="spin-slow" viewBox="0 0 100 100" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <svg id="logo-svg" class="spin-slow" viewBox="0 0 100 100" fill="none" stroke="currentColor">
             <circle cx="50" cy="50" r="45" stroke-width="2"/>
             <path d="M50 20V80M20 50H80" stroke-width="2"/>
         </svg>
     </div>
 
     <div class="ui-box">
+        <div id="env-report">
+            [ ENVIRONMENTAL MONITORING ]<br>
+            DATE: <span id="env-date">--/--/--</span><br>
+            TIME: <span id="env-time">--:--:--</span><br>
+            DATA: <span id="env-weather">SYNCING...</span>
+        </div>
+
         <div id="main-status">> SYSTEM_LOCKED</div>
-        <div id="instruction" class="blink">HARDWARE_KEY_REQUIRED</div>
+        <div id="instruction" class="blink" style="text-align: center; margin-top: 50px;">
+            -- 請感應燭籤鑰匙啟動 --
+        </div>
         
         <div id="result-area">
             <div class="ranks-grid" id="ranks-container"></div>
-            <div id="poem-text">正在讀取地堡資料...</div>
-            <p style="font-size: 9px; color: var(--pip-dim); margin-top: 10px;">AUTH_TOKEN: 04:27:AF_VERIFIED</p>
+            <div id="poem-text">...</div>
+            <div style="font-size: 8px; color: var(--pip-dim); text-align: center;">ID: 04:27:AF_VERIFIED // GOODFUN_OS</div>
         </div>
     </div>
 </div>
 
 <script>
-    // 密鑰設定
     const MASTER_KEY = "GOODFUN_TOKEN_0427";
 
     async function executeDraw() {
-        // --- 核心步驟：立即清理網址列，別人看不到你的 Key ---
+        // 清理網址防止外流
         if (window.location.search.includes('key=')) {
-            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
 
         const logo = document.getElementById('logo-svg');
         const status = document.getElementById('main-status');
         const instruction = document.getElementById('instruction');
         const resultArea = document.getElementById('result-area');
+        const envBox = document.getElementById('env-report');
 
-        // 啟動動畫
         logo.className = 'spin-fast';
         status.innerText = "> ACCESS_GRANTED";
-        instruction.innerText = "CALCULATING_LUCK...";
+        instruction.innerText = "UPLOADING_SURVIVAL_DATA...";
         
         try {
-            const res = await fetch('messages.json');
-            const poems = await res.json();
+            // 抓取天氣
+            const weatherRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=25.03&longitude=121.53&current_weather=true&timezone=auto");
+            const weatherData = await weatherRes.json();
+            const w = weatherData.current_weather;
+            
+            // 抓取籤詩
+            const poemRes = await fetch('messages.json');
+            const poems = await poemRes.json();
 
-            // 模擬系統讀取感
-            await new Promise(r => setTimeout(r, 2000));
+            await new Promise(r => setTimeout(r, 1800));
+
+            // 更新日期與時間
+            const now = new Date();
+            document.getElementById('env-date').innerText = now.toLocaleDateString();
+            document.getElementById('env-time').innerText = now.toLocaleTimeString();
+            document.getElementById('env-weather').innerText = `TEMP: ${w.temperature}°C / WIND: ${w.windspeed}kmh`;
 
             // 計算運勢
             const rarity = [{n:"SSSR",w:1,c:"tag-sssr"},{n:"SSR",w:4,c:""},{n:"SP",w:5,c:""},{n:"SR",w:15,c:""},{n:"R",w:45,c:""},{n:"N",w:30,c:""}];
             const cats = ["LOVE", "WEALTH", "CAREER", "TRAVEL", "HEALTH", "OVERALL"];
-            
             let rankHtml = '';
             cats.forEach(cat => {
                 const rand = Math.random() * 100;
@@ -134,29 +166,25 @@
             });
 
             const lucky = poems[Math.floor(Math.random() * poems.length)];
-            
-            // 顯示結果
             document.getElementById('ranks-container').innerHTML = rankHtml;
             document.getElementById('poem-text').innerText = typeof lucky === 'string' ? lucky : lucky.text;
             
+            // 最終呈現
+            envBox.style.display = 'block';
             logo.className = 'spin-slow';
             status.innerText = "> ANALYSIS_COMPLETE";
             instruction.style.display = 'none';
             resultArea.style.display = 'block';
 
         } catch (e) {
-            status.innerText = "> ERR: DATA_CORRUPTED";
+            status.innerText = "> ERR: SIGNAL_LOST";
         }
     }
 
-    // 檢查網址是否有鑰匙
     window.onload = () => {
         const params = new URLSearchParams(window.location.search);
         if (params.get('key') === MASTER_KEY) {
             executeDraw();
-        } else {
-            // 如果沒有 Key 或 Key 錯誤，維持鎖定狀態
-            console.log("Unauthorized Access Attempt");
         }
     };
 </script>
