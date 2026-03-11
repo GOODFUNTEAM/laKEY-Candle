@@ -24,7 +24,7 @@
             overflow: hidden;
         }
 
-        /* 螢幕掃描線 */
+        /* 螢幕掃描線視覺 */
         body::before {
             content: " ";
             display: block;
@@ -37,23 +37,12 @@
             pointer-events: none;
         }
 
-        .container {
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
-            z-index: 10;
-        }
+        .container { width: 90%; max-width: 450px; text-align: center; z-index: 10; }
 
-        #logo-svg {
-            width: 150px;
-            height: 150px;
-            margin-bottom: 20px;
-            transition: all 0.5s ease;
-        }
-
+        /* LOGO 動畫 */
+        #logo-svg { width: 150px; height: 150px; margin-bottom: 20px; transition: all 0.5s ease; }
         .spin-slow { animation: spin 10s linear infinite; opacity: 0.5; }
         .spin-fast { animation: spin 0.15s linear infinite !important; filter: drop-shadow(0 0 15px var(--pip-green)); opacity: 1; }
-
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .ui-box {
@@ -61,21 +50,22 @@
             padding: 20px;
             background: rgba(24, 255, 98, 0.02);
             box-shadow: 0 0 20px var(--pip-dim);
-            min-height: 220px;
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        .status-msg { margin-bottom: 15px; letter-spacing: 2px; }
+        #main-status { margin-bottom: 10px; font-weight: bold; }
         .blink { animation: blink-anim 1s steps(2, start) infinite; }
         @keyframes blink-anim { to { visibility: hidden; } }
 
-        #result-area { display: none; margin-top: 10px; border-top: 1px solid var(--pip-dim); padding-top: 20px; }
-        .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; text-align: left; }
+        /* 結果區 */
+        #result-area { display: none; margin-top: 15px; border-top: 1px solid var(--pip-dim); padding-top: 15px; }
+        .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.7rem; text-align: left; }
         .rank-item { border: 1px solid var(--pip-dim); padding: 4px; display: flex; justify-content: space-between; }
         .tag-sssr { background: var(--pip-green); color: var(--pip-bg); font-weight: bold; }
-        
-        #poem-text { font-size: 1.1rem; margin: 15px 0; line-height: 1.4; color: #fff; text-shadow: 0 0 5px var(--pip-green); }
-
-        .footer-note { font-size: 9px; opacity: 0.2; margin-top: 20px; }
+        #poem-text { font-size: 1.2rem; margin: 15px 0; color: #fff; text-shadow: 0 0 5px var(--pip-green); }
     </style>
 </head>
 <body>
@@ -89,30 +79,26 @@
     </div>
 
     <div class="ui-box">
-        <div class="status-msg" id="main-status">> SYSTEM_LOCKED</div>
-        <div id="instruction" class="blink">請感應實體燭籤解鎖</div>
+        <div id="main-status">> SYSTEM_LOCKED</div>
+        <div id="instruction" class="blink">HARDWARE_KEY_REQUIRED</div>
         
         <div id="result-area">
             <div class="ranks-grid" id="ranks-container"></div>
-            <div id="poem-text">讀取中...</div>
-            <div style="font-size: 9px; color: var(--pip-dim);">SESSION_ACTIVE: 隨時感應以重新分析</div>
+            <div id="poem-text">正在讀取地堡資料...</div>
+            <p style="font-size: 9px; color: var(--pip-dim); margin-top: 10px;">AUTH_TOKEN: 04:27:AF_VERIFIED</p>
         </div>
     </div>
-    
-    <div class="footer-note">VAULT-TEC PROTOCOL // GOODFUN TEAM</div>
 </div>
 
 <script>
-    const MASTER_SERIAL = "04:27:af:1f:c8:2a:81"; // Android 硬體鎖
-    const MASTER_KEY = "GOODFUN_TOKEN_0427";     // iPhone 網址鎖
-
-    const rarity = [{name:"SSSR",w:1,c:"tag-sssr"},{name:"SSR",w:4,c:""},{name:"SP",w:5,c:""},{name:"SR",w:15,c:""},{name:"R",w:45,c:""},{name:"N",w:30,c:""}];
-    const categories = ["LOVE", "WEALTH", "CAREER", "TRAVEL", "HEALTH", "OVERALL"];
+    // 密鑰設定
+    const MASTER_KEY = "GOODFUN_TOKEN_0427";
 
     async function executeDraw() {
-        // 如果是帶 Key 進來的，立即洗掉網址參數，不留痕跡
+        // --- 核心步驟：立即清理網址列，別人看不到你的 Key ---
         if (window.location.search.includes('key=')) {
-            window.history.replaceState({}, document.title, window.location.pathname);
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
         }
 
         const logo = document.getElementById('logo-svg');
@@ -120,63 +106,59 @@
         const instruction = document.getElementById('instruction');
         const resultArea = document.getElementById('result-area');
 
+        // 啟動動畫
         logo.className = 'spin-fast';
-        status.innerText = "> ACCESS_GRANTED. RUNNING...";
-        instruction.style.display = 'none';
-        resultArea.style.display = 'none';
-
+        status.innerText = "> ACCESS_GRANTED";
+        instruction.innerText = "CALCULATING_LUCK...";
+        
         try {
             const res = await fetch('messages.json');
             const poems = await res.json();
+
+            // 模擬系統讀取感
             await new Promise(r => setTimeout(r, 2000));
 
+            // 計算運勢
+            const rarity = [{n:"SSSR",w:1,c:"tag-sssr"},{n:"SSR",w:4,c:""},{n:"SP",w:5,c:""},{n:"SR",w:15,c:""},{n:"R",w:45,c:""},{n:"N",w:30,c:""}];
+            const cats = ["LOVE", "WEALTH", "CAREER", "TRAVEL", "HEALTH", "OVERALL"];
+            
             let rankHtml = '';
-            categories.forEach(cat => {
+            cats.forEach(cat => {
                 const rand = Math.random() * 100;
-                let sum = 0, sel = rarity[rarity.length-1];
+                let sum = 0, sel = rarity[5];
                 for(let r of rarity) {
                     sum += r.w;
                     if(rand <= sum) { sel = r; break; }
                 }
-                rankHtml += `<div class="rank-item"><span>${cat}</span><span class="${sel.c}">${sel.name}</span></div>`;
+                rankHtml += `<div class="rank-item"><span>${cat}</span><span class="${sel.c}">${sel.n}</span></div>`;
             });
 
             const lucky = poems[Math.floor(Math.random() * poems.length)];
+            
+            // 顯示結果
             document.getElementById('ranks-container').innerHTML = rankHtml;
             document.getElementById('poem-text').innerText = typeof lucky === 'string' ? lucky : lucky.text;
             
             logo.className = 'spin-slow';
             status.innerText = "> ANALYSIS_COMPLETE";
+            instruction.style.display = 'none';
             resultArea.style.display = 'block';
-            instruction.style.display = 'block';
-            instruction.innerText = "感應標籤以再次抽籤";
 
         } catch (e) {
-            status.innerText = "> ERR: DB_OFFLINE";
+            status.innerText = "> ERR: DATA_CORRUPTED";
         }
     }
 
-    // --- 初始化與監聽邏輯 ---
+    // 檢查網址是否有鑰匙
     window.onload = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        // iPhone 方案：偵測網址 Key
-        if (urlParams.get('key') === MASTER_KEY) {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('key') === MASTER_KEY) {
             executeDraw();
+        } else {
+            // 如果沒有 Key 或 Key 錯誤，維持鎖定狀態
+            console.log("Unauthorized Access Attempt");
         }
     };
-
-    // Android 方案：偵測硬體序號
-    if ('NDEFReader' in window) {
-        const ndef = new NDEFReader();
-        ndef.scan().then(() => {
-            ndef.onreading = (event) => {
-                const sn = event.serialNumber.toLowerCase();
-                if (sn === MASTER_SERIAL) {
-                    executeDraw();
-                }
-            };
-        });
-    }
 </script>
 </body>
 </html>
