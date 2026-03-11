@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>laKEY-Candle: TERMINAL</title>
+    <title>laKEY-Candle: HARDWARE_LOCKED</title>
     <style>
         :root {
             --pip-green: #18ff62;
             --pip-bg: #0c120c;
             --pip-dim: #063d17;
+            --pip-err: #ff3b3b;
         }
 
         body {
@@ -24,7 +25,7 @@
             overflow: hidden;
         }
 
-        /* 螢幕掃描線 */
+        /* 掃描線特效 */
         body::before {
             content: " ";
             display: block;
@@ -44,7 +45,6 @@
             z-index: 10;
         }
 
-        /* LOGO 視覺控制 */
         #logo-svg {
             width: 150px;
             height: 150px;
@@ -52,7 +52,7 @@
             transition: all 0.5s ease;
         }
 
-        .spin-slow { animation: spin 10s linear infinite; opacity: 0.6; }
+        .spin-slow { animation: spin 10s linear infinite; opacity: 0.5; }
         .spin-fast { animation: spin 0.15s linear infinite !important; filter: drop-shadow(0 0 15px var(--pip-green)); opacity: 1; }
 
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -62,7 +62,8 @@
             padding: 20px;
             background: rgba(24, 255, 98, 0.02);
             box-shadow: 0 0 20px var(--pip-dim);
-            min-height: 200px;
+            min-height: 220px;
+            position: relative;
         }
 
         .status-msg { margin-bottom: 20px; letter-spacing: 2px; height: 1.2rem; }
@@ -72,12 +73,11 @@
         #result-area { display: none; margin-top: 10px; border-top: 1px solid var(--pip-dim); padding-top: 20px; }
         .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem; text-align: left; }
         .rank-item { border: 1px solid var(--pip-dim); padding: 5px; display: flex; justify-content: space-between; }
-        .tag-sssr { background: var(--pip-green); color: var(--pip-bg); font-weight: bold; box-shadow: 0 0 5px var(--pip-green); }
+        .tag-sssr { background: var(--pip-green); color: var(--pip-bg); font-weight: bold; }
         
         #poem-text { font-size: 1.2rem; margin: 20px 0; line-height: 1.4; color: #fff; text-shadow: 0 0 5px var(--pip-green); font-weight: bold; }
-
-        /* 裝飾性線條 */
-        .decor-line { height: 1px; background: var(--pip-dim); margin: 10px 0; }
+        
+        .error-msg { color: var(--pip-err); display: none; margin-top: 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -87,53 +87,45 @@
         <svg id="logo-svg" class="spin-slow" viewBox="0 0 100 100" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="45" stroke-width="2"/>
             <path d="M50 20V80M20 50H80" stroke-width="2"/>
-            </svg>
+        </svg>
     </div>
 
     <div class="ui-box">
-        <div class="status-msg" id="main-status">> SYSTEM_WAITING</div>
-        <div id="instruction" class="blink">PLEASE_INSERT_TOKEN (NFC)</div>
+        <div class="status-msg" id="main-status">> SYSTEM_LOCKED</div>
+        <div id="instruction" class="blink">偵測硬體授權中...</div>
+        <div id="err-display" class="error-msg">!! ACCESS_DENIED: 非授權標籤 !!</div>
         
         <div id="result-area">
             <div class="ranks-grid" id="ranks-container"></div>
-            <div class="decor-line"></div>
             <div id="poem-text"></div>
-            <div class="decor-line"></div>
         </div>
     </div>
-
-    <p style="margin-top: 20px; font-size: 10px; opacity: 0.3; cursor: pointer;" onclick="executeDraw()">[ MANUAL_OVERRIDE ]</p>
+    <p style="margin-top:20px; font-size:10px; opacity:0.1;">ID: 04:27:AF:1F:C8:2A:81_SECURED</p>
 </div>
 
 <script>
-    const rarity = [
-        { name: "SSSR", w: 1, c: "tag-sssr" },
-        { name: "SSR",  w: 4, c: "" },
-        { name: "SP",   w: 5, c: "" },
-        { name: "SR",   w: 15, c: "" },
-        { name: "R",    w: 45, c: "" },
-        { name: "N",    w: 30, c: "" }
-    ];
+    // 你的專屬標籤序號
+    const MASTER_KEY = "04:27:af:1f:c8:2a:81"; 
+    
+    const rarity = [{name:"SSSR",w:1,c:"tag-sssr"},{name:"SSR",w:4,c:""},{name:"SP",w:5,c:""},{name:"SR",w:15,c:""},{name:"R",w:45,c:""},{name:"N",w:30,c:""}];
     const categories = ["LOVE", "WEALTH", "CAREER", "TRAVEL", "HEALTH", "OVERALL"];
 
-    // 核心邏輯：抽籤程式
     async function executeDraw() {
         const logo = document.getElementById('logo-svg');
         const status = document.getElementById('main-status');
         const instruction = document.getElementById('instruction');
         const resultArea = document.getElementById('result-area');
+        const errDisplay = document.getElementById('err-display');
 
-        // 視覺：高速旋轉與狀態切換
+        errDisplay.style.display = 'none';
         logo.className = 'spin-fast';
-        status.innerText = "> AUTHENTICATING... RUNNING_LUCK.EXE";
+        status.innerText = "> KEY_MATCHED. RUNNING...";
         instruction.style.display = 'none';
         resultArea.style.display = 'none';
 
         try {
             const res = await fetch('messages.json');
             const poems = await res.json();
-
-            // 模擬地堡終端機讀取延遲
             await new Promise(r => setTimeout(r, 2000));
 
             let rankHtml = '';
@@ -148,40 +140,41 @@
             });
 
             const lucky = poems[Math.floor(Math.random() * poems.length)];
-            const poemDisplay = typeof lucky === 'string' ? lucky : (lucky.text || lucky.content);
-
-            // 渲染結果
             document.getElementById('ranks-container').innerHTML = rankHtml;
-            document.getElementById('poem-text').innerText = poemDisplay;
+            document.getElementById('poem-text').innerText = typeof lucky === 'string' ? lucky : lucky.text;
             
-            // 結束效果
             logo.className = 'spin-slow';
             status.innerText = "> ANALYSIS_COMPLETE";
             resultArea.style.display = 'block';
+            instruction.style.display = 'block';
+            instruction.innerText = "重新感應以再次分析";
 
         } catch (e) {
-            status.innerText = "> ERR: DB_READ_FAILURE";
-            logo.className = 'spin-slow';
+            status.innerText = "> ERR: DB_OFFLINE";
         }
     }
 
-    // 初始化檢查：偵測網址是否有 Token 參數
-    window.onload = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        // 如果網址帶有 ?auth=authorized (NFC感應後會自動帶入)
-        if (urlParams.get('auth') === 'authorized') {
-            executeDraw();
-        }
-    };
-
-    // 原生 Web NFC 監聽 (Android Chrome 支援)
+    // --- 核心硬體鎖定邏輯 ---
     if ('NDEFReader' in window) {
         const ndef = new NDEFReader();
         ndef.scan().then(() => {
-            ndef.onreading = () => {
-                executeDraw();
+            ndef.onreading = (event) => {
+                const scannedSerial = event.serialNumber.toLowerCase();
+                
+                if (scannedSerial === MASTER_KEY) {
+                    executeDraw();
+                } else {
+                    // 如果序號不對，顯示報錯
+                    document.getElementById('err-display').style.display = 'block';
+                    document.getElementById('main-status').innerText = "> AUTH_FAILED";
+                }
             };
+        }).catch(err => {
+            document.getElementById('instruction').innerText = "請在支援 NFC 的瀏覽器開啟";
         });
+    } else {
+        // 對於 iOS 或不支援的瀏覽器，不提供自動觸發，僅能手動
+        document.getElementById('instruction').innerText = "HARDWARE_KEY_REQUIRED";
     }
 </script>
 </body>
