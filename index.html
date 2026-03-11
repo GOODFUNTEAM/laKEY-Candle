@@ -31,21 +31,27 @@
         /* 核心視覺區 */
         .wireframe-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
         
-        /* 問號容器：負責上下浮動 */
-        .question-wrapper {
-            width: 120px; height: 160px;
+        /* Logo 容器：負責上下浮動 */
+        .logo-wrapper {
+            width: 180px; height: 180px; /* 根據 logo 比例放大容器 */
             display: flex; justify-content: center; align-items: center;
-            animation: float 3s ease-in-out infinite; /* 初始浮動 */
+            animation: float 3s ease-in-out infinite; 
             position: relative;
         }
 
-        /* 問號本體：負責抽籤時的旋轉 */
-        .question-mark {
-            font-size: 100px; font-weight: bold;
-            font-family: 'Courier New', monospace;
-            text-shadow: 0 0 15px var(--main-green);
-            user-select: none;
+        /* Logo 本體樣式 */
+        .main-logo {
+            width: 140px; height: auto;
+            display: flex; justify-content: center; align-items: center;
             transition: transform 0.5s;
+            filter: drop-shadow(0 0 15px var(--main-green)); /* 霓虹霓虹霓虹霓虹發光感 */
+        }
+
+        /* 強制 SVG 變為螢光綠黑風格 */
+        .main-logo svg {
+            width: 100%; height: 100%;
+            fill: var(--main-green); /* 強制路徑填充螢光綠 */
+            image-rendering: pixelated; /* 保持像素硬邊 */
         }
 
         /* 旋轉動畫類別 (由 JS 觸發) */
@@ -53,13 +59,13 @@
             animation: rotate-fast 0.4s linear infinite !important;
         }
 
-        /* 火焰畫布：放在問號後方作為背景 */
+        /* 火焰畫布：放在 logo 後方 */
         #fire-canvas {
-            position: absolute; bottom: 10px; width: 80px; height: 100px;
-            image-rendering: pixelated; opacity: 0.6; pointer-events: none;
+            position: absolute; bottom: 15px; width: 100px; height: 120px;
+            image-rendering: pixelated; opacity: 0.55; pointer-events: none;
         }
 
-        .wireframe-label { margin-top: 20px; font-size: 9px; letter-spacing: 2px; opacity: 0.7; }
+        .wireframe-label { margin-top: 10px; font-size: 9px; letter-spacing: 2px; opacity: 0.7; }
 
         /* 輸入區域 */
         input[type="text"] {
@@ -86,7 +92,7 @@
         /* 動態定義 */
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+            50% { transform: translateY(-15px); }
         }
         @keyframes rotate-fast {
             0% { transform: rotateY(0deg); }
@@ -114,9 +120,148 @@
         </div>
         
         <div class="wireframe-container">
-            <div class="question-wrapper" id="q-wrapper">
+            <div class="logo-wrapper" id="q-wrapper">
                 <canvas id="fire-canvas"></canvas>
-                <div class="question-mark" id="target-visual">?</div>
+                <div class="main-logo" id="target-visual">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 20H37V22H39V24H41V26H43V32H45V34H47V36H49V38H51V40H53V42H55V44H57V46H59V48H61V50H63V52H65V54H67V56H69V60H71V62H73V64H75V68H13V66H11V64H13V62H15V60H17V58H19V56H21V54H19V52H21V50H19V48H17V46H15V44H13V42H11V40H13V38H11V36H13V34H11V32H13V30H11V28H9V22H11V20Z"/>
+                        <path d="M15 30H19V32H15V30Z"/>
+                        <path d="M15 34H19V36H15V34Z"/>
+                        <path d="M15 38H19V40H15V38Z"/>
+                        <path d="M13 22H17V24H13V22Z"/>
+                        <path d="M13 26H17V28H13V26Z"/>
+                        <path d="M21 22H25V24H21V22Z"/>
+                        <path d="M21 26H25V28H21V26Z"/>
+                        <path d="M21 30H25V32H21V30Z"/>
+                        <path d="M21 34H25V36H21V34Z"/>
+                        <path d="M21 38H25V40H21V38Z"/>
+                        <path d="M17 24V26H19V24H17Z"/>
+                        <path d="M17 32V34H19V32H17Z"/>
+                        <path d="M13 42H17V44H13V42Z"/>
+                        <path d="M17 40V42H19V40H17Z"/>
+                        <path d="M19 44V46H21V44H19Z"/>
+                        <path d="M17 48V50H19V48H17Z"/>
+                        <path d="M19 52V54H21V52H19Z"/>
+                        <path d="M23 42H27V44H23V42Z"/>
+                        <path d="M23 48H27V50H23V48Z"/>
+                        <path d="M17 56V58H19V56H17Z"/>
+                        <path d="M21 46V48H23V46H21Z"/>
+                        <path d="M21 54V56H23V54H21Z"/>
+                        <path d="M21 50V52H23V50H21Z"/>
+                        <path d="M13 46V48H15V46H13Z"/>
+                        <path d="M13 50V52H15V50H13Z"/>
+                        <path d="M13 54V56H15V54H13Z"/>
+                        <path d="M15 62V64H17V62H15Z"/>
+                        <path d="M17 60V62H19V60H17Z"/>
+                        <path d="M17 64H21V66H17V64Z"/>
+                        <path d="M21 62V64H23V62H21Z"/>
+                        <path d="M23 60V62H25V60H23Z"/>
+                        <path d="M21 66V68H23V66H21Z"/>
+                        <path d="M25 64V66H27V64H25Z"/>
+                        <path d="M31 22V24H33V22H31Z"/>
+                        <path d="M31 26V28H33V26H31Z"/>
+                        <path d="M33 24V26H35V24H33Z"/>
+                        <path d="M31 32H35V34H31V32Z"/>
+                        <path d="M33 30V32H35V30H33Z"/>
+                        <path d="M35 22V24H37V22H35Z"/>
+                        <path d="M35 26V28H37V26H35Z"/>
+                        <path d="M35 28V30H37V28H35Z"/>
+                        <path d="M37 34V36H39V34H37Z"/>
+                        <path d="M39 36V38H41V36H39Z"/>
+                        <path d="M41 38V40H43V38H41Z"/>
+                        <path d="M35 44H39V46H35V44Z"/>
+                        <path d="M39 42V44H41V42H39Z"/>
+                        <path d="M41 40V42H43V40H41Z"/>
+                        <path d="M43 46H47V48H43V46Z"/>
+                        <path d="M41 44V46H43V44H41Z"/>
+                        <path d="M45 42V44H47V42H45Z"/>
+                        <path d="M47 40H51V42H47V40Z"/>
+                        <path d="M45 40V42H47V40H45Z"/>
+                        <path d="M45 48V50H47V48H45Z"/>
+                        <path d="M47 50H51V52H47V50Z"/>
+                        <path d="M47 44V46H49V44H47Z"/>
+                        <path d="M49 46V48H51V46H49Z"/>
+                        <path d="M49 52V54H51V52H49Z"/>
+                        <path d="M51 54H55V56H51V54Z"/>
+                        <path d="M51 48V50H53V48H51Z"/>
+                        <path d="M53 50V52H55V50H53Z"/>
+                        <path d="M53 52V54H55V52H53Z"/>
+                        <path d="M53 56V58H55V56H53Z"/>
+                        <path d="M51 60H55V62H51V60Z"/>
+                        <path d="M53 62V64H55V62H53Z"/>
+                        <path d="M55 58V60H57V58H55Z"/>
+                        <path d="M55 64H59V66H55V64Z"/>
+                        <path d="M57 60V62H59V60H57Z"/>
+                        <path d="M59 62V64H61V62H59Z"/>
+                        <path d="M59 66H63V68H59V66Z"/>
+                        <path d="M63 64V66H65V64H63Z"/>
+                        <path d="M63 60H67V62H63V60Z"/>
+                        <path d="M63 56H67V58H63V56Z"/>
+                        <path d="M65 58V60H67V58H65Z"/>
+                        <path d="M63 52H67V54H63V52Z"/>
+                        <path d="M65 54V56H67V54H65Z"/>
+                        <path d="M63 48H67V50H63V48Z"/>
+                        <path d="M65 50V52H67V50H65Z"/>
+                        <path d="M67 46H71V48H67V46Z"/>
+                        <path d="M65 44H69V46H65V44Z"/>
+                        <path d="M69 44V46H71V44H69Z"/>
+                        <path d="M71 42H75V44H71V42Z"/>
+                        <path d="M71 38V40H73V38H71Z"/>
+                        <path d="M71 34H75V36H71V34Z"/>
+                        <path d="M73 36V38H75V36H73Z"/>
+                        <path d="M73 40V42H75V40H73Z"/>
+                        <path d="M71 46V48H73V46H71Z"/>
+                        <path d="M67 36H71V38H67V36Z"/>
+                        <path d="M69 34V36H71V34H69Z"/>
+                        <path d="M69 38V40H71V38H69Z"/>
+                        <path d="M63 32H67V34H63V32Z"/>
+                        <path d="M65 30V32H67V30H65Z"/>
+                        <path d="M65 34V36H67V34H65Z"/>
+                        <path d="M61 24H65V26H61V24Z"/>
+                        <path d="M63 22V24H65V22H63Z"/>
+                        <path d="M63 26V28H65V26H63Z"/>
+                        <path d="M69 20H73V22H69V20Z"/>
+                        <path d="M73 22H77V24H73V22Z"/>
+                        <path d="M77 24H81V26H77V24Z"/>
+                        <path d="M81 26H85V28H81V26Z"/>
+                        <path d="M85 28H89V30H85V28Z"/>
+                        <path d="M87 30H91V32H87V30Z"/>
+                        <path d="M89 32H93V34H89V32Z"/>
+                        <path d="M91 34H95V36H91V34Z"/>
+                        <path d="M93 36H97V38H93V36Z"/>
+                        <path d="M95 38H99V40H95V38Z"/>
+                        <path d="M81 30H85V32H81V30Z"/>
+                        <path d="M81 34H85V36H81V34Z"/>
+                        <path d="M81 38H85V40H81V38Z"/>
+                        <path d="M81 22V24H83V22H81Z"/>
+                        <path d="M83 24V26H85V24H83Z"/>
+                        <path d="M81 20H85V22H81V20Z"/>
+                        <path d="M77 20V22H79V20H77Z"/>
+                        <path d="M77 26V28H79V26H77Z"/>
+                        <path d="M61 38V40H63V38H61Z"/>
+                        <path d="M61 34V36H63V34H61Z"/>
+                        <path d="M61 30V32H63V30H61Z"/>
+                        <path d="M61 26V28H63V26H61Z"/>
+                        <path d="M59 28V30H61V28H59Z"/>
+                        <path d="M59 36V38H61V36H59Z"/>
+                        <path d="M59 32V34H61V32H59Z"/>
+                        <path d="M57 34H61V36H57V34Z"/>
+                        <path d="M57 30H61V32H57V30Z"/>
+                        <path d="M57 26V28H59V26H57Z"/>
+                        <path d="M57 22H61V24H57V22Z"/>
+                        <path d="M55 24V26H57V24H55Z"/>
+                        <path d="M55 32V34H57V32H55Z"/>
+                        <path d="M55 28V30H57V28H55Z"/>
+                        <path d="M55 20H59V22H55V20Z"/>
+                        <path d="M15 28H19V30H15V28Z"/>
+                        <path d="M11 26H13V28H11V26Z"/>
+                        <path d="M11 22H13V24H11V22Z"/>
+                        <path d="M11 30H13V32H11V30Z"/>
+                        <path d="M11 34H13V36H11V34Z"/>
+                        <path d="M11 38H13V40H11V38Z"/>
+                        <path d="M9 22H11V24H9V22Z"/>
+                    </svg>
+                </div>
             </div>
             <div class="wireframe-label" id="ui-core-label">FDM_WIRE_LIT / laKEY_CORE</div>
         </div>
@@ -155,15 +300,16 @@
         function initFire() {
             const canvas = document.getElementById('fire-canvas');
             const ctx = canvas.getContext('2d');
-            const w = 30, h = 50; canvas.width = w; canvas.height = h;
+            const w = 40, h = 60; canvas.width = w; canvas.height = h;
             let pixels = new Array(w * h).fill(0);
             function animate() {
                 for (let i = 0; i < w; i++) pixels[(h - 1) * w + i] = Math.random() > 0.4 ? 255 : 0;
                 for (let y = 0; y < h - 1; y++) {
                     for (let x = 0; x < w; x++) {
                         const idx = y * w + x;
+                        const below = (y + 1) * w + x;
                         const decay = Math.floor(Math.random() * 25);
-                        pixels[idx] = Math.max(0, pixels[(y + 1) * w + x] - decay);
+                        pixels[idx] = Math.max(0, pixels[below] - decay);
                     }
                 }
                 ctx.clearRect(0, 0, w, h);
@@ -183,20 +329,9 @@
             catch (e) { messages = ["SYSTEM_ERROR: MSG_LOAD_FAILED"]; }
         }
 
-        // 天氣系統
+        // 天氣系統用占位符 (如果需要真實天氣，請填入有效 Key)
         async function getWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (p) => {
-                    try {
-                        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${p.coords.latitude}&lon=${p.coords.longitude}&units=metric&appid=YOUR_API_KEY&lang=zh_tw`);
-                        const d = await res.json();
-                        const temp = Math.round(d.main.temp);
-                        document.getElementById('weather-tag').innerText = `ENV: ${d.name.toUpperCase()} ${temp}°C`;
-                        if (temp <= 15) document.documentElement.style.setProperty('--main-green', '#00f2ff');
-                        else if (temp >= 30) document.documentElement.style.setProperty('--main-green', '#ff4e00');
-                    } catch (e) { document.getElementById('weather-tag').innerText = "ENV: LOCAL_SCAN"; }
-                }, () => document.getElementById('weather-tag').innerText = "ENV: LOCAL_SCAN");
-            }
+            document.getElementById('weather-tag').innerText = "ENV:Banqiao District local_scan";
         }
 
         function playTypingSound() {
