@@ -26,25 +26,25 @@
             padding: 20px 0;
         }
 
-        /* 鎖定畫面 */
+        /* 鎖定畫面樣式 */
         #lock-screen { 
             text-align: center; 
             font-family: 'Noto Serif TC', serif; 
             color: var(--red-color); 
-            padding-top: 20vh;
+            padding-top: 25vh;
             width: 100%;
         }
 
-        /* 日曆主卡片 */
+        /* 日曆主卡片樣式 */
         .calendar-card {
             background-color: var(--bg-color);
             width: 92%;
             max-width: 420px;
             padding: 35px 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.18);
             border: 1px solid #D1CDC2;
-            display: none; /* 驗證過才顯示 */
-            animation: fadeIn 0.6s ease;
+            display: none; /* 初始完全隱藏 */
+            animation: fadeIn 0.8s ease;
         }
 
         .header-brand {
@@ -57,18 +57,18 @@
         .date-main { font-family: 'Noto Serif TC', serif; font-size: 5rem; font-weight: 900; margin: 0; color: var(--red-color); line-height: 1; }
         .day-label { font-size: 1.2rem; letter-spacing: 3px; border-top: 2px solid var(--text-color); display: inline-block; padding: 6px 20px; margin-top: 15px; font-weight: bold; }
 
-        .divider { border-top: 1px solid var(--line-color); margin: 30px 0; position: relative; }
+        .divider { border-top: 1px solid var(--line-color); margin: 30px 0; }
         .section-title { font-size: 0.85rem; color: #888; margin-bottom: 15px; text-align: center; letter-spacing: 3px; }
 
         .message-box { font-family: 'Noto Serif TC', serif; font-size: 1.8rem; line-height: 1.5; text-align: center; font-weight: 700; min-height: 80px; display: flex; align-items: center; justify-content: center; white-space: pre-wrap; }
         .rank-label-large { font-size: 6rem; font-weight: 900; color: var(--red-color); line-height: 1; text-align: center; }
 
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line-color); margin: 25px 0; }
-        .stat-item { padding: 15px; border: 0.5px solid var(--line-color); display: flex; justify-content: space-between; font-size: 1rem; }
+        .stat-item { padding: 15px; border: 0.5px solid var(--line-color); display: flex; justify-content: space-between; }
         .stat-val { color: var(--red-color); font-weight: bold; }
 
         .yiji-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .yiji-box h4 { color: var(--red-color); border-bottom: 2.5px solid var(--red-color); text-align: center; padding-bottom: 6px; margin-top: 0; font-size: 1.3rem; }
+        .yiji-box h4 { color: var(--red-color); border-bottom: 2.5px solid var(--red-color); text-align: center; padding-bottom: 6px; margin-top: 0; }
         .yiji-list { list-style: none; padding: 0; text-align: center; line-height: 2.2; font-weight: 600; font-size: 1.1rem; }
 
         /* 許願區 */
@@ -89,7 +89,7 @@
 <body>
 
     <div id="lock-screen">
-        <h2 id="lock-title" style="font-size: 2rem; letter-spacing: 8px; margin-bottom: 10px;">LUCKY CANDLE</h2>
+        <h2 style="font-size: 2rem; letter-spacing: 8px; margin-bottom: 10px;">LUCKY CANDLE</h2>
         <p id="lock-msg" style="opacity: 0.7; font-size: 0.9rem;">請感應實體鑰匙啟動日曆</p>
     </div>
 
@@ -132,7 +132,6 @@
             <div id="wish-display">
                 <div style="font-size: 1.1rem; color: #888;">今日所願</div>
                 <div class="wish-text-final" id="saved-wish-text"></div>
-                <div style="font-size: 0.75rem; opacity: 0.5; border-top: 1px solid #eee; padding-top: 10px;">願望已封存，祝您順心</div>
             </div>
         </div>
 
@@ -140,18 +139,84 @@
             <button class="reset-btn" onclick="confirmReset()">↻ 重新抽籤 (重置今日數據)</button>
         </div>
 
-        <div class="footer-logo">GOODFUN TEAM // CALENDAR ENGINE V5.2</div>
+        <div class="footer-logo">GOODFUN TEAM // CALENDAR ENGINE V5.3</div>
     </div>
 
 <script>
     const MASTER_KEY = "GOODFUN_TOKEN_0427";
     const rarityLabels = { SSSR: "今天非常幸運", SSR: "事情看起來不錯", SR: "大致還算順利", R: "普通的一天", N: "沒有特別發生什麼", SP: "事情有點奇怪" };
-    const yiOptions = ["散步", "喝水", "看書", "整理", "深呼吸", "早起", "冥想", "聽音樂", "聯繫朋友", "斷捨離"];
-    const jiOptions = ["拖延", "生氣", "滑手機", "亂買", "熬夜", "衝動", "胡思亂想", "浪費食物", "遺失物品"];
 
     function getTodayKey() { return new Date().toDateString(); }
 
-    // 渲染函數
+    // --- 核心驗證邏輯：確保 NFC 鎖定功能 ---
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userKey = urlParams.get('key');
+        const today = getTodayKey();
+        const cachedAuth = localStorage.getItem('lucky_auth_date');
+
+        // 判定進入權限：
+        // 1. 網址參數正確 (userKey === MASTER_KEY)
+        // 2. 或者，今天已經感應通過過一次了 (cachedAuth === today)
+        if (userKey === MASTER_KEY || cachedAuth === today) {
+            
+            // 通過權限，標記今日已授權
+            localStorage.setItem('lucky_auth_date', today);
+            
+            // 隱藏網址參數防止被手動分享 (延遲一下確保穩定)
+            if (userKey === MASTER_KEY) {
+                setTimeout(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }, 200);
+            }
+            
+            // 啟動日曆
+            generateCalendar();
+            
+        } else {
+            // 如果連參數都沒有，或參數錯誤，死鎖在當前頁面
+            if (userKey && userKey !== MASTER_KEY) {
+                document.getElementById('lock-msg').innerText = "⚠️ 金鑰無效，請重新感應標籤";
+                document.getElementById('lock-msg').style.color = "orange";
+            }
+            console.log("NFC 鎖定中：請使用正確的實體鑰匙感應。");
+        }
+    };
+
+    // --- 日曆邏輯：鎖定今日結果 ---
+    async function generateCalendar(isReset = false) {
+        const today = getTodayKey();
+        const savedData = JSON.parse(localStorage.getItem('daily_data'));
+
+        // 如果今天已經抽過，且不是重置，就讀取存檔
+        if (!isReset && savedData && savedData.date === today) {
+            renderCalendar(savedData);
+            return;
+        }
+
+        // 否則生成新數據
+        let messages = ["今天沒有奇蹟，但也沒有爆炸。", "順著光走，就不會迷路。"];
+        try {
+            const res = await fetch('messages.json');
+            if(res.ok) messages = await res.json();
+        } catch(e) {}
+
+        const newData = {
+            date: today,
+            poem: messages[Math.floor(Math.random() * messages.length)],
+            rank: Object.keys(rarityLabels)[Math.floor(Math.random() * 6)],
+            stats: ["戀愛", "金錢", "工作", "健康"].map(c => ({ 
+                name: c, 
+                val: Object.keys(rarityLabels)[Math.floor(Math.random() * 6)] 
+            })),
+            yi: ["散步", "喝水", "看書", "整理", "深呼吸", "早起", "冥想"].sort(() => 0.5 - Math.random()).slice(0, 3),
+            ji: ["拖延", "生氣", "滑手機", "亂買", "熬夜", "衝動"].sort(() => 0.5 - Math.random()).slice(0, 3)
+        };
+
+        localStorage.setItem('daily_data', JSON.stringify(newData));
+        renderCalendar(newData);
+    }
+
     function renderCalendar(data) {
         document.getElementById('lock-screen').style.display = 'none';
         document.getElementById('main-calendar').style.display = 'block';
@@ -176,38 +241,7 @@
         checkWishStatus();
     }
 
-    // 生成或讀取數據
-    async function generateCalendar(isReset = false) {
-        const today = getTodayKey();
-        const savedData = JSON.parse(localStorage.getItem('daily_data'));
-
-        if (!isReset && savedData && savedData.date === today) {
-            renderCalendar(savedData);
-            return;
-        }
-
-        let messages = ["今天沒有奇蹟，但也沒有爆炸。", "路走對了，風景就會回來。"];
-        try {
-            const res = await fetch('messages.json');
-            if(res.ok) messages = await res.json();
-        } catch(e) { console.warn("無法載入 messages.json，切換至備用文字"); }
-
-        const newData = {
-            date: today,
-            poem: messages[Math.floor(Math.random() * messages.length)],
-            rank: Object.keys(rarityLabels)[Math.floor(Math.random() * 6)],
-            stats: ["戀愛", "金錢", "工作", "健康"].map(c => ({ 
-                name: c, 
-                val: Object.keys(rarityLabels)[Math.floor(Math.random() * 6)] 
-            })),
-            yi: [...yiOptions].sort(() => 0.5 - Math.random()).slice(0, 3),
-            ji: [...jiOptions].sort(() => 0.5 - Math.random()).slice(0, 3)
-        };
-
-        localStorage.setItem('daily_data', JSON.stringify(newData));
-        renderCalendar(newData);
-    }
-
+    // 重置功能
     function confirmReset() {
         if (confirm("確定要重新抽籤嗎？這會清除你今天的運勢與願望。")) {
             localStorage.removeItem('lucky_wish');
@@ -216,6 +250,7 @@
         }
     }
 
+    // 許願與氣候功能 (同前版)
     function saveWish() {
         const val = document.getElementById('wish-input').value.trim();
         if(!val) return;
@@ -223,23 +258,17 @@
         localStorage.setItem('wish_date', getTodayKey());
         showSavedWish(val);
     }
-
     function showSavedWish(text) {
         document.getElementById('wish-form').style.display = 'none';
         document.getElementById('wish-display').style.display = 'block';
         document.getElementById('saved-wish-text').innerText = `「 ${text} 」`;
     }
-
     function checkWishStatus() {
         if (localStorage.getItem('wish_date') === getTodayKey()) {
             const w = localStorage.getItem('lucky_wish');
             if (w) showSavedWish(w);
-        } else {
-            document.getElementById('wish-form').style.display = 'block';
-            document.getElementById('wish-display').style.display = 'none';
         }
     }
-
     async function updateEnv() {
         if (!navigator.geolocation) return;
         navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -248,53 +277,12 @@
                 const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&timezone=auto`);
                 const wData = await wRes.json();
                 document.getElementById('weather-info').innerText = `${Math.round(wData.current_weather.temperature)}°C 氣候穩定`;
-                
                 const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
                 const gData = await geoRes.json();
                 document.getElementById('display-location').innerText = gData.address.city || gData.address.town || "新竹地區";
             } catch(e) {}
         });
     }
-
-    // --- 核心門神與除錯機制 ---
-    window.onload = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const userKey = urlParams.get('key');
-        const today = getTodayKey();
-        const cachedAuth = localStorage.getItem('lucky_auth_date');
-
-        console.log("Input Key:", userKey);
-
-        // 驗證流程
-        if (userKey === MASTER_KEY || cachedAuth === today) {
-            localStorage.setItem('lucky_auth_date', today);
-            
-            // 洗掉網址列（延遲確保穩定）
-            if (userKey === MASTER_KEY) {
-                setTimeout(() => {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }, 150);
-            }
-            
-            generateCalendar();
-        } else {
-            // 驗證失敗顯示錯誤訊息
-            if (userKey) {
-                document.getElementById('lock-msg').innerText = "⚠️ 鑰匙序號不符，請重新感應";
-                document.getElementById('lock-msg').style.color = "orange";
-            }
-        }
-    };
-
-    // 隱藏測試功能：點擊標題 5 下強制開啟（僅供你開發測試用）
-    let debugClicks = 0;
-    document.getElementById('lock-title').onclick = () => {
-        debugClicks++;
-        if(debugClicks >= 5) {
-            alert("測試模式：強制解鎖");
-            generateCalendar();
-        }
-    };
 </script>
 </body>
 </html>
