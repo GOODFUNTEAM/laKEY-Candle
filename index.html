@@ -1,26 +1,171 @@
-// ... (CSS 部分保持不變)
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Candle – 今日日曆</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #F5F1E8;
+            --red-color: #B00020;
+            --text-color: #111111;
+            --line-color: #DDDDDD;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: #E0DDD5;
+            color: var(--text-color);
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* 鎖定畫面樣式 */
+        #lock-screen { 
+            text-align: center; 
+            font-family: 'Noto Serif TC', serif; 
+            color: var(--red-color); 
+            padding-top: 15vh;
+            width: 100%;
+        }
+
+        /* 日曆主卡片 - 單頁瀑布式 */
+        .calendar-card {
+            background-color: var(--bg-color);
+            width: 92%;
+            max-width: 420px;
+            padding: 35px 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid #D1CDC2;
+            display: none; /* 初始隱藏 */
+            animation: fadeIn 0.5s ease;
+        }
+
+        .header-brand {
+            font-family: 'Noto Serif TC', serif; font-size: 1.1rem; letter-spacing: 5px;
+            border-bottom: 2.5px solid var(--text-color); padding-bottom: 8px; margin-bottom: 25px; text-align: center;
+        }
+
+        /* 日期區樣式 */
+        .date-section { text-align: center; margin-bottom: 25px; }
+        .location-tag { display: inline-block; background-color: var(--red-color); color: #FFF; font-size: 0.75rem; padding: 3px 12px; margin-bottom: 12px; font-weight: bold; }
+        .date-main { font-family: 'Noto Serif TC', serif; font-size: 5rem; font-weight: 900; margin: 0; color: var(--red-color); line-height: 1; }
+        .day-label { font-size: 1.2rem; letter-spacing: 3px; border-top: 2px solid var(--text-color); display: inline-block; padding: 6px 20px; margin-top: 15px; font-weight: bold; }
+
+        .divider { border-top: 1px solid var(--line-color); margin: 30px 0; }
+        .section-title { font-size: 0.85rem; color: #888; margin-bottom: 15px; text-align: center; letter-spacing: 3px; }
+
+        .message-box { font-family: 'Noto Serif TC', serif; font-size: 1.8rem; line-height: 1.5; text-align: center; font-weight: 700; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+        .rank-label-large { font-size: 6rem; font-weight: 900; color: var(--red-color); line-height: 1; text-align: center; }
+
+        /* 運勢格線 */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line-color); margin: 25px 0; }
+        .stat-item { padding: 15px; border: 0.5px solid var(--line-color); display: flex; justify-content: space-between; font-size: 1rem; }
+        .stat-val { color: var(--red-color); font-weight: bold; }
+
+        /* 宜忌區塊 */
+        .yiji-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+        .yiji-box h4 { color: var(--red-color); border-bottom: 2.5px solid var(--red-color); text-align: center; padding-bottom: 6px; margin-top: 0; font-size: 1.3rem; }
+        .yiji-list { list-style: none; padding: 0; text-align: center; line-height: 2.2; font-weight: 600; font-size: 1.1rem; }
+
+        /* 許願區 */
+        .wish-section { margin-top: 45px; padding: 30px 20px; border: 2.5px solid var(--red-color); text-align: center; background: #fffcf5; position: relative; }
+        .wish-section::before { content: "WISH"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--red-color); color: white; padding: 2px 15px; font-size: 0.75rem; font-weight: bold; }
+        .wish-input { width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--text-color); font-family: 'Noto Serif TC', serif; font-size: 1.3rem; padding: 10px; text-align: center; outline: none; margin-bottom: 20px; }
+        .wish-btn { background: var(--red-color); color: white; border: none; padding: 12px 35px; font-weight: bold; cursor: pointer; letter-spacing: 3px; font-size: 1rem; }
+        #wish-display { display: none; font-family: 'Noto Serif TC', serif; }
+        .wish-text-final { font-size: 1.7rem; color: var(--red-color); font-weight: 900; margin: 20px 0; line-height: 1.4; }
+
+        .reset-container { margin-top: 40px; text-align: center; }
+        .reset-btn { background: transparent; color: #bbb; border: 1px solid #ddd; padding: 6px 18px; font-size: 0.75rem; cursor: pointer; border-radius: 20px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .footer-logo { margin: 50px 0 10px; text-align: center; opacity: 0.2; font-size: 0.7rem; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div id="lock-screen">
+        <h2 style="font-size: 2rem; letter-spacing: 8px; margin-bottom: 10px;">LUCKY CANDLE</h2>
+        <p style="opacity: 0.7; font-size: 0.9rem;">請感應實體鑰匙啟動日曆</p>
+    </div>
+
+    <div class="calendar-card" id="main-calendar">
+        <div class="header-brand">LUCKY CANDLE</div>
+
+        <div class="date-section">
+            <div class="location-tag" id="display-location">定位同步中</div>
+            <div id="display-date-str" style="font-weight: bold; letter-spacing: 1px;">2026.03.12</div>
+            <div class="date-main" id="display-day-num">--</div>
+            <div class="day-label" id="display-weekday">Thursday</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-title">今日訊息</div>
+        <div class="message-box" id="poem-text">正在讀取...</div>
+
+        <div class="divider"></div>
+        <div class="section-title">整體運勢</div>
+        <div class="rank-label-large" id="overall-rank-label">--</div>
+        <div style="text-align: center; font-weight: 800; font-size: 1.2rem; margin-top: 5px;" id="overall-rank-desc">...</div>
+
+        <div class="stats-grid" id="category-stats"></div>
+
+        <div class="divider"></div>
+        <div class="section-title">即時氣候</div>
+        <div id="weather-info" style="text-align: center; font-weight: 800; font-size: 1.4rem;">...</div>
+
+        <div class="yiji-section">
+            <div class="yiji-box"><h4>宜</h4><ul class="yiji-list" id="yi-list"></ul></div>
+            <div class="yiji-box"><h4>忌</h4><ul class="yiji-list" id="ji-list"></ul></div>
+        </div>
+
+        <div class="wish-section">
+            <div id="wish-form">
+                <div class="section-title" style="margin-bottom: 5px; color: var(--red-color); font-weight: bold;">許下今日願望</div>
+                <input type="text" class="wish-input" id="wish-input" placeholder="欲達成的目標..." maxlength="25">
+                <button class="wish-btn" onclick="saveWish()">點燃願望</button>
+            </div>
+            <div id="wish-display">
+                <div style="font-size: 1.1rem; color: #888;">今日所願</div>
+                <div class="wish-text-final" id="saved-wish-text"></div>
+                <div style="font-size: 0.75rem; opacity: 0.5; border-top: 1px solid #eee; padding-top: 10px;">願望已封存，祝您順心</div>
+            </div>
+        </div>
+
+        <div class="reset-container">
+            <button class="reset-btn" onclick="confirmReset()">↻ 重新抽籤 (重置今日數據)</button>
+        </div>
+
+        <div class="footer-logo">GOODFUN TEAM // CALENDAR ENGINE V5.1</div>
+    </div>
 
 <script>
-    // 1. NFC 感應金鑰 (門神)
     const MASTER_KEY = "GOODFUN_TOKEN_0427";
     const rarityLabels = { SSSR: "今天非常幸運", SSR: "事情看起來不錯", SR: "大致還算順利", R: "普通的一天", N: "沒有特別發生什麼", SP: "事情有點奇怪" };
+    const yiOptions = ["散步", "喝水", "看書", "整理", "深呼吸", "早起", "冥想", "聽音樂", "聯繫朋友", "斷捨離"];
+    const jiOptions = ["拖延", "生氣", "滑手機", "亂買", "熬夜", "衝動", "胡思亂想", "浪費食物", "遺失物品"];
 
-    // 獲取今天日期的字串作為 Key
     function getTodayKey() { return new Date().toDateString(); }
 
     async function generateCalendar(isReset = false) {
-        // 進入此 function 代表已經通過 MASTER_KEY 驗證
         const today = getTodayKey();
         const savedData = JSON.parse(localStorage.getItem('daily_data'));
 
-        // 如果不是手動重置，且今天已經抽過籤，就直接讀取快取
+        // 讀取機制
         if (!isReset && savedData && savedData.date === today) {
             renderCalendar(savedData);
             return;
         }
 
-        // 否則：執行隨機抽籤邏輯 (從這裡開始才會消耗隨機性)
-        let messages = ["今天沒有奇蹟，但也沒有爆炸。", "與其等待風起，不如主動揚帆。"];
+        // 生成機制
+        let messages = ["今天沒有奇蹟，但也沒有爆炸。", "路走對了，風景就會回來。"];
         try {
             const res = await fetch('messages.json');
             messages = await res.json();
@@ -34,39 +179,110 @@
                 name: c, 
                 val: Object.keys(rarityLabels)[Math.floor(Math.random() * 6)] 
             })),
-            yi: ["散步", "喝水", "看書", "整理", "深呼吸", "早起"].sort(() => 0.5 - Math.random()).slice(0, 3),
-            ji: ["拖延", "生氣", "滑手機", "亂買", "熬夜", "衝動"].sort(() => 0.5 - Math.random()).slice(0, 3)
+            yi: [...yiOptions].sort(() => 0.5 - Math.random()).slice(0, 3),
+            ji: [...jiOptions].sort(() => 0.5 - Math.random()).slice(0, 3)
         };
 
-        // 存入本地儲存空間
         localStorage.setItem('daily_data', JSON.stringify(newData));
         renderCalendar(newData);
     }
 
-    // 重新抽籤的二次確認
+    function renderCalendar(data) {
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('main-calendar').style.display = 'block';
+
+        const now = new Date();
+        document.getElementById('display-day-num').innerText = now.getDate();
+        document.getElementById('display-date-str').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+        document.getElementById('display-weekday').innerText = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
+
+        document.getElementById('poem-text').innerText = typeof data.poem === 'string' ? data.poem : (data.poem.text || data.poem.message);
+        document.getElementById('overall-rank-label').innerText = data.rank;
+        document.getElementById('overall-rank-desc').innerText = rarityLabels[data.rank];
+        
+        document.getElementById('category-stats').innerHTML = data.stats.map(s => `
+            <div class="stat-item"><span>${s.name}</span><span class="stat-val">${s.val}</span></div>
+        `).join('');
+
+        document.getElementById('yi-list').innerHTML = data.yi.map(i => `<li>${i}</li>`).join('');
+        document.getElementById('ji-list').innerHTML = data.ji.map(i => `<li>${i}</li>`).join('');
+        
+        updateEnv();
+        checkWishStatus();
+    }
+
+    // 重置功能
     function confirmReset() {
-        if (confirm("確定要重新抽籤嗎？這會清除你今天的運勢記錄與願望。")) {
+        if (confirm("確定要重新抽籤嗎？這會清除你今天的運勢與願望。")) {
             localStorage.removeItem('lucky_wish');
             localStorage.removeItem('daily_data');
-            generateCalendar(true); // 傳入 true 強制重新生成
+            generateCalendar(true);
         }
     }
 
+    // 願望功能
+    function saveWish() {
+        const val = document.getElementById('wish-input').value.trim();
+        if(!val) return;
+        localStorage.setItem('lucky_wish', val);
+        localStorage.setItem('wish_date', getTodayKey());
+        showSavedWish(val);
+    }
+    function showSavedWish(text) {
+        document.getElementById('wish-form').style.display = 'none';
+        document.getElementById('wish-display').style.display = 'block';
+        document.getElementById('saved-wish-text').innerText = `「 ${text} 」`;
+    }
+    function checkWishStatus() {
+        if (localStorage.getItem('wish_date') === getTodayKey()) {
+            const w = localStorage.getItem('lucky_wish');
+            if (w) showSavedWish(w);
+        } else {
+            document.getElementById('wish-form').style.display = 'block';
+            document.getElementById('wish-display').style.display = 'none';
+        }
+    }
+
+    // 定位與天氣
+    async function updateEnv() {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const { latitude, longitude } = pos.coords;
+            try {
+                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&timezone=auto`);
+                const wData = await wRes.json();
+                document.getElementById('weather-info').innerText = `${Math.round(wData.current_weather.temperature)}°C 氣候穩定`;
+                
+                const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
+                const gData = await geoRes.json();
+                document.getElementById('display-location').innerText = gData.address.city || gData.address.town || "新竹地區";
+            } catch(e) {}
+        });
+    }
+
+    // 門神驗證邏輯
     window.onload = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const userKey = urlParams.get('key');
+        const today = getTodayKey();
+        const hasAuth = localStorage.getItem('lucky_auth_date');
 
-        // 這是核心鎖定邏輯：
-        if (userKey === MASTER_KEY) {
-            // 驗證通過，洗掉網址列的 Key (防止手動分享)
-            window.history.replaceState({}, document.title, window.location.pathname);
-            // 執行日曆生成或讀取
+        // 驗證條件：網址帶有正確 Key OR 今天已經感應過標籤
+        if (userKey === MASTER_KEY || hasAuth === today) {
+            // 存入「今日已授權」標記
+            localStorage.setItem('lucky_auth_date', today);
+            
+            // 如果網址還有 Key，洗掉它 (保持美觀)
+            if (userKey === MASTER_KEY) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
             generateCalendar();
         } else {
-            // 沒感應標籤的人，會一直停留在 lock-screen
-            console.log("Access Denied: Please use the physical Lucky Candle tag.");
+            // 沒感應標籤也沒授權紀錄，維持鎖定
+            console.log("Access Denied.");
         }
     };
-    
-    // ... (renderCalendar, updateEnv 等其餘功能)
 </script>
+</body>
+</html>
