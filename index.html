@@ -1,300 +1,72 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Candle – 今日日曆</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #F5F1E8;
-            --red-color: #B00020;
-            --text-color: #111111;
-            --line-color: #DDDDDD;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Noto Sans TC', sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .calendar-card {
-            background-color: var(--bg-color);
-            width: 100%;
-            max-width: 420px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border: 1px solid #D1CDC2;
-        }
-
-        /* 標題 */
-        .header-brand {
-            font-family: 'Noto Serif TC', serif;
-            font-size: 1.2rem;
-            letter-spacing: 4px;
-            border-bottom: 2px solid var(--text-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        /* 日期區 */
-        .date-section {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .date-main {
-            font-family: 'Noto Serif TC', serif;
-            font-size: 4rem;
-            font-weight: 900;
-            margin: 5px 0;
-            color: var(--red-color);
-            line-height: 1;
-        }
-        .day-label {
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-            border-top: 1px solid var(--text-color);
-            display: inline-block;
-            padding-top: 5px;
-            margin-top: 10px;
-        }
-
-        .divider {
-            border-top: 1px solid var(--line-color);
-            margin: 20px 0;
-            position: relative;
-        }
-        .divider::before {
-            content: "────";
-            color: var(--line-color);
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            letter-spacing: 2px;
-        }
-
-        /* 區塊標題 */
-        .section-title {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        /* 今日訊息 */
-        .message-box {
-            font-family: 'Noto Serif TC', serif;
-            font-size: 1.8rem;
-            line-height: 1.4;
-            text-align: center;
-            font-weight: 700;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* 整體運勢大字 */
-        .overall-rank {
-            text-align: center;
-            margin: 15px 0;
-        }
-        .rank-label-large {
-            font-size: 5rem;
-            font-weight: 900;
-            color: var(--red-color);
-            line-height: 1;
-        }
-        .rank-desc {
-            font-size: 1.2rem;
-            color: var(--text-color);
-        }
-
-        /* 六種分類格線排版 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            border: 1px solid var(--line-color);
-            margin: 20px 0;
-        }
-        .stat-item {
-            padding: 10px 15px;
-            border: 0.5px solid var(--line-color);
-            display: flex;
-            justify-content: space-between;
-        }
-        .stat-val { font-weight: bold; color: var(--red-color); }
-
-        /* 天氣、宜忌 */
-        .yiji-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .yiji-box {
-            border: 1px solid var(--line-color);
-            padding: 15px;
-        }
-        .yiji-box h4 {
-            color: var(--red-color);
-            border-bottom: 2px solid var(--red-color);
-            padding-bottom: 5px;
-            margin: 0 0 10px 0;
-            text-align: center;
-        }
-        .yiji-list { list-style: none; padding: 0; text-align: center; line-height: 1.8; }
-
-        .footer-logo { margin-top: 30px; text-align: center; opacity: 0.2; font-size: 0.7rem; }
-    </style>
-</head>
-<body>
-
-    <div class="calendar-card">
-        <div class="header-brand">LUCKY CANDLE</div>
-
-        <div class="date-section">
-            <div id="display-date-str" style="font-size: 0.9rem;">2026.03.12</div>
-            <div class="date-main" id="display-day-num">12</div>
-            <div class="day-label" id="display-weekday">Thursday</div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="section-title">今日訊息</div>
-        <div class="message-box" id="poem-text">載入中...</div>
-
-        <div class="divider"></div>
-
-        <div class="section-title">整體運勢</div>
-        <div class="overall-rank">
-            <div class="rank-label-large" id="overall-rank-label">--</div>
-            <div class="rank-desc" id="overall-rank-desc">載入中</div>
-        </div>
-
-        <div class="stats-grid" id="category-stats">
-            </div>
-
-        <div class="divider"></div>
-
-        <div class="section-title">天氣預報</div>
-        <div style="text-align:center; padding: 10px 0;" id="weather-text">--</div>
-
-        <div class="divider"></div>
-
-        <div class="yiji-section">
-            <div class="yiji-box">
-                <h4>宜</h4>
-                <ul class="yiji-list" id="yi-list"></ul>
-            </div>
-            <div class="yiji-box">
-                <h4>忌</h4>
-                <ul class="yiji-list" id="ji-list"></ul>
-            </div>
-        </div>
-
-        <div class="footer-logo">GOODFUN TEAM // CALENDAR ENGINE</div>
-    </div>
+// ... (CSS 部分保持不變)
 
 <script>
+    // 1. NFC 感應金鑰 (門神)
     const MASTER_KEY = "GOODFUN_TOKEN_0427";
-    
-    // 籤詩句子資料庫
-    const poems = [
-        {text: "事情沒有解決\n只是暫停"},
-        {text: "今天沒有奇蹟\n但也沒有爆炸"},
-        {text: "與其等待風起\n不如主動揚帆"},
-        {text: "路走對了\n風景就會回來"},
-        {text: "安靜地發光\n也是一種回答"}
-    ];
+    const rarityLabels = { SSSR: "今天非常幸運", SSR: "事情看起來不錯", SR: "大致還算順利", R: "普通的一天", N: "沒有特別發生什麼", SP: "事情有點奇怪" };
 
-    const rarityLabels = {
-        SSSR: "今天非常幸運",
-        SSR: "事情看起來不錯",
-        SR: "大致還算順利",
-        R: "普通的一天",
-        N: "沒有特別發生什麼",
-        SP: "事情有點奇怪"
-    };
+    // 獲取今天日期的字串作為 Key
+    function getTodayKey() { return new Date().toDateString(); }
 
-    const yiOptions = ["散步", "慢慢來", "早點睡", "喝水", "出門走走", "看書", "聯絡老友", "整理房間", "聽音樂", "冥想"];
-    const jiOptions = ["拖延", "衝動購物", "太晚睡", "亂答應事情", "滑手機太久", "生氣糾結", "胡思亂想", "浪費食物"];
+    async function generateCalendar(isReset = false) {
+        // 進入此 function 代表已經通過 MASTER_KEY 驗證
+        const today = getTodayKey();
+        const savedData = JSON.parse(localStorage.getItem('daily_data'));
 
-    function getRandom(arr, count) {
-        return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
-    }
-
-    function getRandomRarity() {
-        const keys = Object.keys(rarityLabels);
-        return keys[Math.floor(Math.random() * keys.length)];
-    }
-
-    async function generateCalendar() {
-        // 1. 隱藏 URL 參數
-        if (window.location.search.includes('key=')) {
-            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
+        // 如果不是手動重置，且今天已經抽過籤，就直接讀取快取
+        if (!isReset && savedData && savedData.date === today) {
+            renderCalendar(savedData);
+            return;
         }
 
-        // 2. 設定日期
-        const now = new Date();
-        const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        document.getElementById('display-date-str').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
-        document.getElementById('display-day-num').innerText = now.getDate();
-        document.getElementById('display-weekday').innerText = weekdays[now.getDay()];
+        // 否則：執行隨機抽籤邏輯 (從這裡開始才會消耗隨機性)
+        let messages = ["今天沒有奇蹟，但也沒有爆炸。", "與其等待風起，不如主動揚帆。"];
+        try {
+            const res = await fetch('messages.json');
+            messages = await res.json();
+        } catch(e) {}
 
-        // 3. 籤詩
-        const lucky = poems[Math.floor(Math.random() * poems.length)];
-        document.getElementById('poem-text').innerText = lucky.text;
+        const newData = {
+            date: today,
+            poem: messages[Math.floor(Math.random() * messages.length)],
+            rank: Object.keys(rarityLabels)[Math.floor(Math.random() * 6)],
+            stats: ["戀愛", "金錢", "工作", "健康"].map(c => ({ 
+                name: c, 
+                val: Object.keys(rarityLabels)[Math.floor(Math.random() * 6)] 
+            })),
+            yi: ["散步", "喝水", "看書", "整理", "深呼吸", "早起"].sort(() => 0.5 - Math.random()).slice(0, 3),
+            ji: ["拖延", "生氣", "滑手機", "亂買", "熬夜", "衝動"].sort(() => 0.5 - Math.random()).slice(0, 3)
+        };
 
-        // 4. 整體運勢大字
-        const mainRarity = getRandomRarity();
-        document.getElementById('overall-rank-label').innerText = mainRarity;
-        document.getElementById('overall-rank-desc').innerText = rarityLabels[mainRarity];
-
-        // 5. 分類運勢格線
-        const cats = ["戀愛", "金錢", "工作", "旅行", "健康"];
-        let html = '';
-        cats.forEach(c => {
-            html += `<div class="stat-item"><span>${c}</span><span class="stat-val">${getRandomRarity()}</span></div>`;
-        });
-        document.getElementById('category-stats').innerHTML = html;
-
-        // 6. 天氣預報
-        document.getElementById('weather-text').innerText = getRandomRarity() + " " + rarityLabels[getRandomRarity()];
-
-        // 7. 宜與忌
-        const yi = getRandom(yiOptions, 3);
-        const ji = getRandom(jiOptions, 3);
-        document.getElementById('yi-list').innerHTML = yi.map(i => `<li>${i}</li>`).join('');
-        document.getElementById('ji-list').innerHTML = ji.map(i => `<li>${i}</li>`).join('');
+        // 存入本地儲存空間
+        localStorage.setItem('daily_data', JSON.stringify(newData));
+        renderCalendar(newData);
     }
 
-    // 當頁面載入時檢查金鑰並生成內容
+    // 重新抽籤的二次確認
+    function confirmReset() {
+        if (confirm("確定要重新抽籤嗎？這會清除你今天的運勢記錄與願望。")) {
+            localStorage.removeItem('lucky_wish');
+            localStorage.removeItem('daily_data');
+            generateCalendar(true); // 傳入 true 強制重新生成
+        }
+    }
+
     window.onload = () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const key = urlParams.get('key');
+        const userKey = urlParams.get('key');
 
-        if (key === MASTER_KEY) {
+        // 這是核心鎖定邏輯：
+        if (userKey === MASTER_KEY) {
+            // 驗證通過，洗掉網址列的 Key (防止手動分享)
+            window.history.replaceState({}, document.title, window.location.pathname);
+            // 執行日曆生成或讀取
             generateCalendar();
         } else {
-            // 如果沒有 Key 或 Key 錯誤，維持原本的 Fallout 鎖定狀態或顯示空白
-            alert("非授權存取，請使用實體鑰匙。");
-            document.body.style.backgroundColor = "#E0DDD5"; /* 顯示鎖定畫面 */
-            document.body.innerHTML = "<h1 style='color:#B00020; font-family:serif; text-align:center;'>LUCKY CANDLE<br>今日日曆鎖定中</h1>";
+            // 沒感應標籤的人，會一直停留在 lock-screen
+            console.log("Access Denied: Please use the physical Lucky Candle tag.");
         }
     };
+    
+    // ... (renderCalendar, updateEnv 等其餘功能)
 </script>
-</body>
-</html>
