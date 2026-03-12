@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lucky Candle – 今日日曆</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
@@ -26,16 +26,16 @@
             padding: 20px 0;
         }
 
-        /* 鎖定畫面樣式 */
+        /* 鎖定畫面 */
         #lock-screen { 
             text-align: center; 
             font-family: 'Noto Serif TC', serif; 
             color: var(--red-color); 
-            padding-top: 15vh;
+            padding-top: 20vh;
             width: 100%;
         }
 
-        /* 日曆主卡片 - 單頁瀑布式 */
+        /* 日曆主卡片 */
         .calendar-card {
             background-color: var(--bg-color);
             width: 92%;
@@ -43,8 +43,8 @@
             padding: 35px 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             border: 1px solid #D1CDC2;
-            display: none; /* 初始隱藏 */
-            animation: fadeIn 0.5s ease;
+            display: none; /* 驗證過才顯示 */
+            animation: fadeIn 0.6s ease;
         }
 
         .header-brand {
@@ -52,25 +52,22 @@
             border-bottom: 2.5px solid var(--text-color); padding-bottom: 8px; margin-bottom: 25px; text-align: center;
         }
 
-        /* 日期區樣式 */
         .date-section { text-align: center; margin-bottom: 25px; }
         .location-tag { display: inline-block; background-color: var(--red-color); color: #FFF; font-size: 0.75rem; padding: 3px 12px; margin-bottom: 12px; font-weight: bold; }
         .date-main { font-family: 'Noto Serif TC', serif; font-size: 5rem; font-weight: 900; margin: 0; color: var(--red-color); line-height: 1; }
         .day-label { font-size: 1.2rem; letter-spacing: 3px; border-top: 2px solid var(--text-color); display: inline-block; padding: 6px 20px; margin-top: 15px; font-weight: bold; }
 
-        .divider { border-top: 1px solid var(--line-color); margin: 30px 0; }
+        .divider { border-top: 1px solid var(--line-color); margin: 30px 0; position: relative; }
         .section-title { font-size: 0.85rem; color: #888; margin-bottom: 15px; text-align: center; letter-spacing: 3px; }
 
-        .message-box { font-family: 'Noto Serif TC', serif; font-size: 1.8rem; line-height: 1.5; text-align: center; font-weight: 700; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+        .message-box { font-family: 'Noto Serif TC', serif; font-size: 1.8rem; line-height: 1.5; text-align: center; font-weight: 700; min-height: 80px; display: flex; align-items: center; justify-content: center; white-space: pre-wrap; }
         .rank-label-large { font-size: 6rem; font-weight: 900; color: var(--red-color); line-height: 1; text-align: center; }
 
-        /* 運勢格線 */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line-color); margin: 25px 0; }
         .stat-item { padding: 15px; border: 0.5px solid var(--line-color); display: flex; justify-content: space-between; font-size: 1rem; }
         .stat-val { color: var(--red-color); font-weight: bold; }
 
-        /* 宜忌區塊 */
-        .yiji-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+        .yiji-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .yiji-box h4 { color: var(--red-color); border-bottom: 2.5px solid var(--red-color); text-align: center; padding-bottom: 6px; margin-top: 0; font-size: 1.3rem; }
         .yiji-list { list-style: none; padding: 0; text-align: center; line-height: 2.2; font-weight: 600; font-size: 1.1rem; }
 
@@ -78,9 +75,9 @@
         .wish-section { margin-top: 45px; padding: 30px 20px; border: 2.5px solid var(--red-color); text-align: center; background: #fffcf5; position: relative; }
         .wish-section::before { content: "WISH"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--red-color); color: white; padding: 2px 15px; font-size: 0.75rem; font-weight: bold; }
         .wish-input { width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--text-color); font-family: 'Noto Serif TC', serif; font-size: 1.3rem; padding: 10px; text-align: center; outline: none; margin-bottom: 20px; }
-        .wish-btn { background: var(--red-color); color: white; border: none; padding: 12px 35px; font-weight: bold; cursor: pointer; letter-spacing: 3px; font-size: 1rem; }
+        .wish-btn { background: var(--red-color); color: white; border: none; padding: 12px 35px; font-weight: bold; cursor: pointer; letter-spacing: 3px; }
         #wish-display { display: none; font-family: 'Noto Serif TC', serif; }
-        .wish-text-final { font-size: 1.7rem; color: var(--red-color); font-weight: 900; margin: 20px 0; line-height: 1.4; }
+        .wish-text-final { font-size: 1.7rem; color: var(--red-color); font-weight: 900; margin: 20px 0; }
 
         .reset-container { margin-top: 40px; text-align: center; }
         .reset-btn { background: transparent; color: #bbb; border: 1px solid #ddd; padding: 6px 18px; font-size: 0.75rem; cursor: pointer; border-radius: 20px; }
@@ -92,8 +89,8 @@
 <body>
 
     <div id="lock-screen">
-        <h2 style="font-size: 2rem; letter-spacing: 8px; margin-bottom: 10px;">LUCKY CANDLE</h2>
-        <p style="opacity: 0.7; font-size: 0.9rem;">請感應實體鑰匙啟動日曆</p>
+        <h2 id="lock-title" style="font-size: 2rem; letter-spacing: 8px; margin-bottom: 10px;">LUCKY CANDLE</h2>
+        <p id="lock-msg" style="opacity: 0.7; font-size: 0.9rem;">請感應實體鑰匙啟動日曆</p>
     </div>
 
     <div class="calendar-card" id="main-calendar">
@@ -143,7 +140,7 @@
             <button class="reset-btn" onclick="confirmReset()">↻ 重新抽籤 (重置今日數據)</button>
         </div>
 
-        <div class="footer-logo">GOODFUN TEAM // CALENDAR ENGINE V5.1</div>
+        <div class="footer-logo">GOODFUN TEAM // CALENDAR ENGINE V5.2</div>
     </div>
 
 <script>
@@ -154,22 +151,46 @@
 
     function getTodayKey() { return new Date().toDateString(); }
 
+    // 渲染函數
+    function renderCalendar(data) {
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('main-calendar').style.display = 'block';
+
+        const now = new Date();
+        document.getElementById('display-day-num').innerText = now.getDate();
+        document.getElementById('display-date-str').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+        document.getElementById('display-weekday').innerText = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
+
+        document.getElementById('poem-text').innerText = typeof data.poem === 'string' ? data.poem : (data.poem.text || "今天也是好日子");
+        document.getElementById('overall-rank-label').innerText = data.rank;
+        document.getElementById('overall-rank-desc').innerText = rarityLabels[data.rank];
+        
+        document.getElementById('category-stats').innerHTML = data.stats.map(s => `
+            <div class="stat-item"><span>${s.name}</span><span class="stat-val">${s.val}</span></div>
+        `).join('');
+
+        document.getElementById('yi-list').innerHTML = data.yi.map(i => `<li>${i}</li>`).join('');
+        document.getElementById('ji-list').innerHTML = data.ji.map(i => `<li>${i}</li>`).join('');
+        
+        updateEnv();
+        checkWishStatus();
+    }
+
+    // 生成或讀取數據
     async function generateCalendar(isReset = false) {
         const today = getTodayKey();
         const savedData = JSON.parse(localStorage.getItem('daily_data'));
 
-        // 讀取機制
         if (!isReset && savedData && savedData.date === today) {
             renderCalendar(savedData);
             return;
         }
 
-        // 生成機制
         let messages = ["今天沒有奇蹟，但也沒有爆炸。", "路走對了，風景就會回來。"];
         try {
             const res = await fetch('messages.json');
-            messages = await res.json();
-        } catch(e) {}
+            if(res.ok) messages = await res.json();
+        } catch(e) { console.warn("無法載入 messages.json，切換至備用文字"); }
 
         const newData = {
             date: today,
@@ -187,31 +208,6 @@
         renderCalendar(newData);
     }
 
-    function renderCalendar(data) {
-        document.getElementById('lock-screen').style.display = 'none';
-        document.getElementById('main-calendar').style.display = 'block';
-
-        const now = new Date();
-        document.getElementById('display-day-num').innerText = now.getDate();
-        document.getElementById('display-date-str').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
-        document.getElementById('display-weekday').innerText = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
-
-        document.getElementById('poem-text').innerText = typeof data.poem === 'string' ? data.poem : (data.poem.text || data.poem.message);
-        document.getElementById('overall-rank-label').innerText = data.rank;
-        document.getElementById('overall-rank-desc').innerText = rarityLabels[data.rank];
-        
-        document.getElementById('category-stats').innerHTML = data.stats.map(s => `
-            <div class="stat-item"><span>${s.name}</span><span class="stat-val">${s.val}</span></div>
-        `).join('');
-
-        document.getElementById('yi-list').innerHTML = data.yi.map(i => `<li>${i}</li>`).join('');
-        document.getElementById('ji-list').innerHTML = data.ji.map(i => `<li>${i}</li>`).join('');
-        
-        updateEnv();
-        checkWishStatus();
-    }
-
-    // 重置功能
     function confirmReset() {
         if (confirm("確定要重新抽籤嗎？這會清除你今天的運勢與願望。")) {
             localStorage.removeItem('lucky_wish');
@@ -220,7 +216,6 @@
         }
     }
 
-    // 願望功能
     function saveWish() {
         const val = document.getElementById('wish-input').value.trim();
         if(!val) return;
@@ -228,11 +223,13 @@
         localStorage.setItem('wish_date', getTodayKey());
         showSavedWish(val);
     }
+
     function showSavedWish(text) {
         document.getElementById('wish-form').style.display = 'none';
         document.getElementById('wish-display').style.display = 'block';
         document.getElementById('saved-wish-text').innerText = `「 ${text} 」`;
     }
+
     function checkWishStatus() {
         if (localStorage.getItem('wish_date') === getTodayKey()) {
             const w = localStorage.getItem('lucky_wish');
@@ -243,7 +240,6 @@
         }
     }
 
-    // 定位與天氣
     async function updateEnv() {
         if (!navigator.geolocation) return;
         navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -260,27 +256,43 @@
         });
     }
 
-    // 門神驗證邏輯
+    // --- 核心門神與除錯機制 ---
     window.onload = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const userKey = urlParams.get('key');
         const today = getTodayKey();
-        const hasAuth = localStorage.getItem('lucky_auth_date');
+        const cachedAuth = localStorage.getItem('lucky_auth_date');
 
-        // 驗證條件：網址帶有正確 Key OR 今天已經感應過標籤
-        if (userKey === MASTER_KEY || hasAuth === today) {
-            // 存入「今日已授權」標記
+        console.log("Input Key:", userKey);
+
+        // 驗證流程
+        if (userKey === MASTER_KEY || cachedAuth === today) {
             localStorage.setItem('lucky_auth_date', today);
             
-            // 如果網址還有 Key，洗掉它 (保持美觀)
+            // 洗掉網址列（延遲確保穩定）
             if (userKey === MASTER_KEY) {
-                window.history.replaceState({}, document.title, window.location.pathname);
+                setTimeout(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }, 150);
             }
             
             generateCalendar();
         } else {
-            // 沒感應標籤也沒授權紀錄，維持鎖定
-            console.log("Access Denied.");
+            // 驗證失敗顯示錯誤訊息
+            if (userKey) {
+                document.getElementById('lock-msg').innerText = "⚠️ 鑰匙序號不符，請重新感應";
+                document.getElementById('lock-msg').style.color = "orange";
+            }
+        }
+    };
+
+    // 隱藏測試功能：點擊標題 5 下強制開啟（僅供你開發測試用）
+    let debugClicks = 0;
+    document.getElementById('lock-title').onclick = () => {
+        debugClicks++;
+        if(debugClicks >= 5) {
+            alert("測試模式：強制解鎖");
+            generateCalendar();
         }
     };
 </script>
