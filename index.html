@@ -3,189 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>laKEY-Candle: SURVIVAL_TERMINAL</title>
+    <title>LUCKY CANDLE - 今日日曆</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --pip-green: #18ff62;
-            --pip-bg: #0c120c;
-            --pip-dim: #063d17;
+            --bg-color: #F5F1E8;
+            --red-color: #B00020;
+            --text-color: #111111;
+            --line-color: #DDDDDD;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
-            background-color: var(--pip-bg);
-            color: var(--pip-green);
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #E0DDD5;
+            color: var(--text-color);
+            font-family: 'Noto Sans TC', sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            text-transform: uppercase;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow: hidden; /* 防止撕紙時出現滾動條 */
         }
 
-        /* 經典掃描線 */
-        body::before {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            z-index: 100;
-            background-size: 100% 3px;
-            pointer-events: none;
-            opacity: 0.3;
-        }
+        /* 鎖定畫面 */
+        #lock-screen { text-align: center; font-family: 'Noto Serif TC', serif; color: var(--red-color); z-index: 10; }
 
-        .container { width: 92%; max-width: 450px; text-align: center; z-index: 10; }
-
-        #logo-svg { width: 100px; height: 100px; margin-bottom: 15px; }
-        .spin-slow { animation: spin 10s linear infinite; opacity: 0.5; }
-        .spin-fast { animation: spin 0.15s linear infinite !important; filter: drop-shadow(0 0 10px var(--pip-green)); }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .ui-box {
-            border: 2px solid var(--pip-green);
-            padding: 15px;
-            background: rgba(24, 255, 98, 0.02);
-            box-shadow: 0 0 20px var(--pip-dim);
-            text-align: left;
-            min-height: 350px;
-        }
-
-        /* 環境報告區 */
-        #env-report {
-            font-size: 0.7rem;
-            line-height: 1.4;
-            border-bottom: 1px solid var(--pip-dim);
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+        /* 日曆主容器 */
+        .calendar-wrapper {
+            width: 90%;
+            max-width: 420px;
+            height: 80vh;
+            position: relative;
             display: none;
+            perspective: 1000px;
         }
 
-        #main-status { font-weight: bold; margin-bottom: 5px; text-align: center; }
-        .blink { animation: blink-anim 1s steps(2, start) infinite; }
-        @keyframes blink-anim { to { visibility: hidden; } }
-
-        #result-area { display: none; }
-        .ranks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.7rem; }
-        .rank-item { border: 1px solid var(--pip-dim); padding: 4px; display: flex; justify-content: space-between; }
-        .tag-sssr { background: var(--pip-green); color: var(--pip-bg); font-weight: bold; }
-        
-        #poem-text { 
-            font-size: 1.1rem; 
-            margin: 15px 0; 
-            color: #fff; 
-            text-align: center;
-            text-shadow: 0 0 5px var(--pip-green); 
-            border: 1px dashed var(--pip-dim);
-            padding: 10px;
+        /* 日曆主體內容 */
+        .calendar-card {
+            background-color: var(--bg-color);
+            width: 100%;
+            height: 100%;
+            padding: 30px 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #D1CDC2;
+            overflow-y: auto;
+            position: absolute;
+            top: 0; left: 0;
         }
+
+        /* 撕紙層 (封面) */
+        .tear-off-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            background-image: repeating-linear-gradient(var(--bg-color) 0px, var(--bg-color) 20px, #f0ede4 21px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #D1CDC2;
+            cursor: pointer;
+            transition: transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.5s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tear-off-layer.ripped {
+            transform: translateY(-120%) rotate(-5deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 封面裝飾 */
+        .cover-title { font-family: 'Noto Serif TC', serif; font-size: 2.5rem; color: var(--red-color); font-weight: 900; margin-bottom: 10px; }
+        .cover-hint { font-size: 0.9rem; letter-spacing: 5px; color: #888; border: 1px solid #888; padding: 5px 15px; }
+
+        /* 內容樣式 (延續之前) */
+        .header-brand { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; letter-spacing: 4px; border-bottom: 2px solid var(--text-color); padding-bottom: 8px; margin-bottom: 20px; text-align: center; }
+        .location-tag { display: inline-block; background-color: var(--red-color); color: #FFF; font-size: 0.75rem; padding: 3px 12px; margin-bottom: 8px; font-weight: bold; }
+        .date-main { font-family: 'Noto Serif TC', serif; font-size: 4rem; font-weight: 900; color: var(--red-color); line-height: 1; }
+        .divider { border-top: 1px solid var(--line-color); margin: 20px 0; }
+        .rank-label-large { font-size: 5rem; font-weight: 900; color: var(--red-color); line-height: 1; text-align: center;}
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line-color); margin: 20px 0; }
+        .stat-item { padding: 12px 15px; border: 0.5px solid var(--line-color); display: flex; justify-content: space-between; }
+        .yiji-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .yiji-box h4 { color: var(--red-color); border-bottom: 2px solid var(--red-color); text-align: center; padding-bottom: 5px; }
+        .yiji-list { list-style: none; padding: 0; text-align: center; line-height: 2; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="logo-wrapper">
-        <svg id="logo-svg" class="spin-slow" viewBox="0 0 100 100" fill="none" stroke="currentColor">
-            <circle cx="50" cy="50" r="45" stroke-width="2"/>
-            <path d="M50 20V80M20 50H80" stroke-width="2"/>
-        </svg>
+    <div id="lock-screen">
+        <h2 style="font-size: 1.8rem; letter-spacing: 5px;">LUCKY CANDLE</h2>
+        <p>請感應實體鑰匙啟動</p>
     </div>
 
-    <div class="ui-box">
-        <div id="env-report">
-            [ ENVIRONMENTAL MONITORING ]<br>
-            DATE: <span id="env-date">--/--/--</span><br>
-            TIME: <span id="env-time">--:--:--</span><br>
-            DATA: <span id="env-weather">SYNCING...</span>
+    <div class="calendar-wrapper" id="calendar-wrapper">
+        <div class="tear-off-layer" id="tear-layer" onclick="ripPaper()">
+            <div style="font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 20px;">EST. 2026</div>
+            <div class="cover-title">LUCKY CANDLE</div>
+            <div style="font-size: 1.2rem; margin-bottom: 40px;">今日日曆</div>
+            <div class="cover-hint">向上滑動撕開</div>
         </div>
 
-        <div id="main-status">> SYSTEM_LOCKED</div>
-        <div id="instruction" class="blink" style="text-align: center; margin-top: 50px;">
-            -- 請感應燭籤鑰匙啟動 --
-        </div>
-        
-        <div id="result-area">
-            <div class="ranks-grid" id="ranks-container"></div>
-            <div id="poem-text">...</div>
-            <div style="font-size: 8px; color: var(--pip-dim); text-align: center;">ID: 04:27:AF_VERIFIED // GOODFUN_OS</div>
+        <div class="calendar-card">
+            <div class="header-brand">LUCKY CANDLE</div>
+            <div style="text-align: center;">
+                <div class="location-tag" id="display-location">定位中...</div>
+                <div id="display-date-str" style="font-size: 0.9rem; font-weight: bold;">2026.03.12</div>
+                <div class="date-main" id="display-day-num">12</div>
+                <div style="font-size: 1.1rem; letter-spacing: 2px; border-top: 1px solid #111; display: inline-block; padding: 5px 10px;" id="display-weekday">Thursday</div>
+            </div>
+
+            <div class="divider"></div>
+            <div style="text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 10px;">今日訊息</div>
+            <div style="font-family: 'Noto Serif TC', serif; font-size: 1.6rem; text-align: center; font-weight: 700;" id="poem-text">...</div>
+
+            <div class="divider"></div>
+            <div class="rank-label-large" id="overall-rank-label">--</div>
+            <div style="text-align: center; font-weight: bold;" id="overall-rank-desc">分析中</div>
+
+            <div class="stats-grid" id="category-stats"></div>
+
+            <div class="divider"></div>
+            <div style="text-align: center; font-size: 0.8rem; color: #888; margin-bottom: 5px;">即時氣候</div>
+            <div id="weather-info" style="text-align: center; font-weight: bold; font-size: 1.2rem;">讀取中...</div>
+
+            <div class="yiji-section" style="margin-top: 30px;">
+                <div class="yiji-box"><h4>宜</h4><ul class="yiji-list" id="yi-list"></ul></div>
+                <div class="yiji-box"><h4>忌</h4><ul class="yiji-list" id="ji-list"></ul></div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px; opacity: 0.2; font-size: 0.7rem;">GOODFUN TEAM // CALENDAR ENGINE</div>
         </div>
     </div>
-</div>
 
 <script>
     const MASTER_KEY = "GOODFUN_TOKEN_0427";
+    const rarityLabels = { SSSR: "今天非常幸運", SSR: "事情看起來不錯", SR: "大致還算順利", R: "普通的一天", N: "沒有特別發生什麼", SP: "事情有點奇怪" };
+    const yiOptions = ["散步", "慢慢來", "早點睡", "大口喝水", "看一本好書", "整理桌面", "深呼吸", "早起吃早餐"];
+    const jiOptions = ["拖延", "衝動購物", "熬夜", "過度滑手機", "生氣糾結", "浪費食物"];
 
-    async function executeDraw() {
-        // 清理網址防止外流
+    // 撕紙動畫
+    function ripPaper() {
+        const layer = document.getElementById('tear-layer');
+        layer.classList.add('ripped');
+        // 可加入撕紙音效
+        const audio = new Audio('https://www.soundjay.com/human/paper-rip-1.mp3'); 
+        audio.volume = 0.5;
+        audio.play().catch(()=>{}); 
+    }
+
+    // 地區與天氣
+    async function updateEnv() {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const { latitude, longitude } = pos.coords;
+            const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&timezone=auto`);
+            const wData = await weatherRes.json();
+            document.getElementById('weather-info').innerText = `氣候穩定 ${wData.current_weather.temperature}°C`;
+            
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
+            const gData = await geoRes.json();
+            document.getElementById('display-location').innerText = gData.address.city || gData.address.town || "新竹地區";
+        });
+    }
+
+    async function generateCalendar() {
         if (window.location.search.includes('key=')) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('calendar-wrapper').style.display = 'block';
 
-        const logo = document.getElementById('logo-svg');
-        const status = document.getElementById('main-status');
-        const instruction = document.getElementById('instruction');
-        const resultArea = document.getElementById('result-area');
-        const envBox = document.getElementById('env-report');
+        const now = new Date();
+        const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        document.getElementById('display-date-str').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+        document.getElementById('display-day-num').innerText = now.getDate();
+        document.getElementById('display-weekday').innerText = weekdays[now.getDay()];
 
-        logo.className = 'spin-fast';
-        status.innerText = "> ACCESS_GRANTED";
-        instruction.innerText = "UPLOADING_SURVIVAL_DATA...";
+        updateEnv();
+
+        // 運勢與內容
+        const mainRarity = Object.keys(rarityLabels)[Math.floor(Math.random() * 6)];
+        document.getElementById('overall-rank-label').innerText = mainRarity;
+        document.getElementById('overall-rank-desc').innerText = rarityLabels[mainRarity];
+
+        document.getElementById('category-stats').innerHTML = ["戀愛", "金錢", "工作", "健康"].map(c => `
+            <div class="stat-item"><span>${c}</span><span style="color:var(--red-color); font-weight:bold;">${Object.keys(rarityLabels)[Math.floor(Math.random()*6)]}</span></div>
+        `).join('');
+
+        document.getElementById('yi-list').innerHTML = yiOptions.sort(() => 0.5 - Math.random()).slice(0, 3).map(i => `<li>${i}</li>`).join('');
+        document.getElementById('ji-list').innerHTML = jiOptions.sort(() => 0.5 - Math.random()).slice(0, 3).map(i => `<li>${i}</li>`).join('');
         
         try {
-            // 抓取天氣
-            const weatherRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=25.03&longitude=121.53&current_weather=true&timezone=auto");
-            const weatherData = await weatherRes.json();
-            const w = weatherData.current_weather;
-            
-            // 抓取籤詩
-            const poemRes = await fetch('messages.json');
-            const poems = await poemRes.json();
-
-            await new Promise(r => setTimeout(r, 1800));
-
-            // 更新日期與時間
-            const now = new Date();
-            document.getElementById('env-date').innerText = now.toLocaleDateString();
-            document.getElementById('env-time').innerText = now.toLocaleTimeString();
-            document.getElementById('env-weather').innerText = `TEMP: ${w.temperature}°C / WIND: ${w.windspeed}kmh`;
-
-            // 計算運勢
-            const rarity = [{n:"SSSR",w:1,c:"tag-sssr"},{n:"SSR",w:4,c:""},{n:"SP",w:5,c:""},{n:"SR",w:15,c:""},{n:"R",w:45,c:""},{n:"N",w:30,c:""}];
-            const cats = ["LOVE", "WEALTH", "CAREER", "TRAVEL", "HEALTH", "OVERALL"];
-            let rankHtml = '';
-            cats.forEach(cat => {
-                const rand = Math.random() * 100;
-                let sum = 0, sel = rarity[5];
-                for(let r of rarity) {
-                    sum += r.w;
-                    if(rand <= sum) { sel = r; break; }
-                }
-                rankHtml += `<div class="rank-item"><span>${cat}</span><span class="${sel.c}">${sel.n}</span></div>`;
-            });
-
-            const lucky = poems[Math.floor(Math.random() * poems.length)];
-            document.getElementById('ranks-container').innerHTML = rankHtml;
-            document.getElementById('poem-text').innerText = typeof lucky === 'string' ? lucky : lucky.text;
-            
-            // 最終呈現
-            envBox.style.display = 'block';
-            logo.className = 'spin-slow';
-            status.innerText = "> ANALYSIS_COMPLETE";
-            instruction.style.display = 'none';
-            resultArea.style.display = 'block';
-
-        } catch (e) {
-            status.innerText = "> ERR: SIGNAL_LOST";
-        }
+            const res = await fetch('messages.json');
+            const p = await res.json();
+            document.getElementById('poem-text').innerText = p[Math.floor(Math.random()*p.length)].text;
+        } catch(e) { document.getElementById('poem-text').innerText = "今天沒有奇蹟\n但也沒有爆炸"; }
     }
 
     window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('key') === MASTER_KEY) {
-            executeDraw();
-        }
+        if (new URLSearchParams(window.location.search).get('key') === MASTER_KEY) generateCalendar();
     };
 </script>
 </body>
