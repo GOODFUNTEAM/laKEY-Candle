@@ -1,45 +1,228 @@
-/* 基礎標籤樣式 */
-.rank-tag {
-    padding: 2px 8px;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    border: 1px solid #000;
+:root {
+    --paper: #F2F0E9;   /* 懷舊紙張色 */
+    --blue: #0055FF;    /* 老日曆標準藍 */
+    --red: #E60012;     /* 老日曆標準紅 */
+    --ink: #1A1A1A;     /* 墨黑 */
 }
 
-/* SSSR: 金屬光澤閃爍 */
-.rank-sssr {
-    background: linear-gradient(45deg, #ffd700, #fff, #ffd700);
-    background-size: 200% 200%;
-    animation: shine 1.5s infinite;
-    color: #000;
-    box-shadow: 0 0 10px #ffd700;
+/* 基礎設定：禁止縮放與捲動，維持一頁式體驗 */
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+    margin: 0; padding: 0; 
 }
 
-/* SP: 故障藝術效果 */
-.rank-sp {
-    background: #000;
-    color: #0ff;
-    text-shadow: 2px 0 #f0f;
-    animation: glitch 0.3s infinite;
+body {
+    background-color: #111; /* 深色背景襯托紙張 */
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    height: 100vh; 
+    width: 100vw; 
+    overflow: hidden;
+    font-family: "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
 }
 
-/* 其他等級 */
-.rank-ssr { background: #ff00ff; color: #fff; }
-.rank-sr  { background: #ffa500; color: #fff; }
-.rank-r   { background: #eee; color: #333; }
-.rank-n   { background: #888; color: #fff; opacity: 0.6; }
-
-@keyframes shine {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* 鎖定畫面樣式 */
+#lock-screen { 
+    text-align: center; 
+    color: var(--paper); 
+    z-index: 100; 
+    font-family: 'Noto Serif TC', serif; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+}
+#lock-screen h2 { 
+    font-size: 2.2rem; 
+    letter-spacing: 8px; 
+    margin-bottom: 15px; 
+    color: #fff; 
 }
 
-@keyframes glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
+/* 日曆主體 */
+.calendar-paper {
+    background-color: var(--paper);
+    width: 92vw; 
+    max-width: 390px; 
+    height: 94vh;
+    padding: 15px; 
+    border: 2px solid var(--ink);
+    display: none; /* 初始隱藏，由 JS 驗證後開啟 */
+    flex-direction: column;
+    box-shadow: 12px 12px 0px rgba(0,0,0,0.5);
+    position: relative;
+    animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* 頂部導覽：孤芳小隊品牌區 */
+.top-nav {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    border-bottom: 4px double var(--ink); /* 經典雙實線 */
+    padding-bottom: 10px; 
+    margin-bottom: 10px;
+}
+.team-name { 
+    font-family: 'Noto Serif TC', serif; 
+    font-size: 1.4rem; 
+    color: var(--ink); 
+    font-weight: 900; 
+    letter-spacing: 2px; 
+}
+.logo-img { 
+    width: 45px; 
+    height: 45px; 
+    object-fit: contain; 
+}
+
+/* 日期區塊 */
+.date-box {
+    border: 2px solid var(--blue);
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    position: relative; 
+    margin-bottom: 10px;
+}
+.month-tag { 
+    position: absolute; 
+    top: 10px; 
+    left: 12px; 
+    color: var(--blue); 
+    font-weight: 900; 
+    font-size: 1.8rem; 
+}
+.day-num { 
+    font-size: 10rem; 
+    font-weight: 900; 
+    color: var(--blue); 
+    line-height: 0.85; 
+    margin-top: 10px; 
+}
+.week-bar {
+    width: 100%; 
+    background-color: var(--blue); 
+    color: white;
+    text-align: center; 
+    font-size: 2rem; 
+    font-weight: 900;
+    padding: 6px 0; 
+    letter-spacing: 15px; 
+    margin-top: auto;
+}
+
+/* 資訊網格 */
+.info-grid {
+    display: grid; 
+    grid-template-columns: 1fr 1.5fr 1fr;
+    border-top: 2px solid var(--ink); 
+    margin-bottom: 10px;
+}
+.cell { 
+    border-right: 1px solid var(--ink); 
+    border-bottom: 1px solid var(--ink); 
+    padding: 6px; 
+    text-align: center; 
+}
+.cell:last-child { border-right: none; }
+.cell-label { 
+    color: var(--red); 
+    font-weight: bold; 
+    font-size: 0.75rem; 
+    display: block; 
+    margin-bottom: 2px; 
+}
+.cell-val { 
+    font-weight: 900; 
+    font-size: 1.1rem; 
+}
+
+/* 宜忌區 */
+.yiji-wrap { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    border: 2px solid var(--ink); 
+}
+.yiji-box { 
+    padding: 8px; 
+    text-align: center; 
+    min-height: 80px; 
+}
+.yiji-box.yi { 
+    border-right: 2px solid var(--ink); 
+    background: rgba(0, 85, 255, 0.03); 
+}
+.yiji-head { 
+    font-weight: 900; 
+    font-size: 1.4rem; 
+    border-bottom: 1px solid var(--ink); 
+    margin-bottom: 6px; 
+    display: block; 
+}
+.yi .yiji-head { color: var(--red); }
+.yiji-list { 
+    font-size: 1.15rem; 
+    font-weight: 900; 
+    line-height: 1.5; 
+    list-style: none; 
+    color: var(--ink); 
+}
+
+/* 籤詩金句 */
+.maxim {
+    margin: 12px 0; 
+    padding: 15px 5px;
+    border: 1px dashed var(--ink);
+    text-align: center; 
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.3rem; 
+    font-weight: 800; 
+    line-height: 1.4; 
+    color: #333;
+}
+
+/* 許願區 */
+.wish-zone { 
+    display: flex; 
+    border: 2px solid var(--red); 
+    margin-bottom: 5px; 
+    background: white; 
+}
+.wish-in { 
+    flex: 1; 
+    border: none; 
+    padding: 12px; 
+    font-size: 1rem; 
+    background: transparent; 
+    outline: none; 
+    font-weight: bold; 
+}
+.wish-go { 
+    background: var(--red); 
+    color: white; 
+    border: none; 
+    padding: 0 20px; 
+    font-weight: 900; 
+    letter-spacing: 2px; 
+    cursor: pointer;
+}
+
+.footer { 
+    text-align: center; 
+    font-size: 0.65rem; 
+    opacity: 0.5; 
+    letter-spacing: 2px; 
+    margin-top: 5px; 
+    font-weight: bold; 
+    color: var(--ink); 
+}
+
+/* 入場動畫 */
+@keyframes slideUp { 
+    from { transform: translateY(30px); opacity: 0; } 
+    to { transform: translateY(0); opacity: 1; } 
 }
