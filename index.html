@@ -4,103 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lucky Candle – GOODFUN TEAM</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --paper: #F2F0E9;
-            --blue: #0055FF;
-            --red: #E60012;
-            --ink: #1A1A1A;
-        }
-
-        /* 基礎設定：禁止滾動與縮放 */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body {
-            background-color: #111;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; width: 100vw; overflow: hidden;
-            font-family: "PingFang TC", "Heiti TC", sans-serif;
-        }
-
-        /* 鎖定畫面：重整後必現 */
-        #lock-screen { 
-            text-align: center; color: var(--paper); z-index: 100; 
-            font-family: 'Noto Serif TC', serif; display: flex; flex-direction: column; align-items: center;
-        }
-        #lock-screen h2 { font-size: 2.2rem; letter-spacing: 8px; margin-bottom: 15px; color: #fff; }
-        #lock-msg { font-size: 1rem; opacity: 0.7; letter-spacing: 2px; }
-
-        /* 日曆主體：老日曆視覺復刻 */
-        .calendar-paper {
-            background-color: var(--paper);
-            width: 92vw; max-width: 390px; height: 94vh;
-            padding: 15px; border: 2px solid var(--ink);
-            display: none; /* 初始鎖定 */
-            flex-direction: column;
-            box-shadow: 12px 12px 0px rgba(0,0,0,0.5);
-            position: relative;
-            animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        /* 頂部導覽：孤芳小隊專屬 */
-        .top-nav {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 4px double var(--ink);
-            padding-bottom: 10px; margin-bottom: 10px;
-        }
-        .team-name { font-family: 'Noto Serif TC', serif; font-size: 1.4rem; color: var(--ink); font-weight: 900; letter-spacing: 2px; }
-        .logo-img { width: 45px; height: 45px; object-fit: contain; }
-
-        /* 日期顯示區：大面積寶藍色 */
-        .date-box {
-            border: 2px solid var(--blue);
-            flex-grow: 1; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            position: relative; margin-bottom: 10px;
-        }
-        .month-tag { position: absolute; top: 10px; left: 12px; color: var(--blue); font-weight: 900; font-size: 1.8rem; }
-        .day-num { font-size: 10rem; font-weight: 900; color: var(--blue); line-height: 0.85; margin-top: 10px; }
-        .week-bar {
-            width: 100%; background-color: var(--blue); color: white;
-            text-align: center; font-size: 2rem; font-weight: 900;
-            padding: 6px 0; letter-spacing: 15px; margin-top: auto;
-        }
-
-        /* 氣象與運勢格線 */
-        .info-grid {
-            display: grid; grid-template-columns: 1fr 1.5fr 1fr;
-            border-top: 2px solid var(--ink); margin-bottom: 10px;
-        }
-        .cell { border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 6px; text-align: center; }
-        .cell:last-child { border-right: none; }
-        .cell-label { color: var(--red); font-weight: bold; font-size: 0.75rem; display: block; margin-bottom: 2px; }
-        .cell-val { font-weight: 900; font-size: 1.1rem; }
-
-        /* 宜忌區 */
-        .yiji-wrap { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); }
-        .yiji-box { padding: 8px; text-align: center; min-height: 80px; }
-        .yiji-box.yi { border-right: 2px solid var(--ink); background: rgba(0, 85, 255, 0.03); }
-        .yiji-head { font-weight: 900; font-size: 1.4rem; border-bottom: 1px solid var(--ink); margin-bottom: 6px; display: block; }
-        .yi .yiji-head { color: var(--red); }
-        .yiji-list { font-size: 1.15rem; font-weight: 900; line-height: 1.5; list-style: none; color: var(--ink); }
-
-        /* 籤詩名言 */
-        .maxim {
-            margin: 12px 0; padding: 15px 5px;
-            border: 1px dashed var(--ink);
-            text-align: center; font-family: 'Noto Serif TC', serif;
-            font-size: 1.3rem; font-weight: 800; line-height: 1.4; color: #333;
-        }
-
-        /* 許願區 */
-        .wish-zone { display: flex; border: 2px solid var(--red); margin-bottom: 5px; background: white; }
-        .wish-in { flex: 1; border: none; padding: 12px; font-size: 1rem; background: transparent; outline: none; font-weight: bold; }
-        .wish-go { background: var(--red); color: white; border: none; padding: 0 20px; font-weight: 900; letter-spacing: 2px; }
-
-        .footer { text-align: center; font-size: 0.65rem; opacity: 0.5; letter-spacing: 2px; margin-top: 5px; font-weight: bold; color: var(--ink); }
-
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    </style>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -110,10 +17,11 @@
     </div>
 
     <div class="calendar-paper" id="main-calendar">
+        
         <div class="top-nav">
             <span class="team-name">孤芳小隊</span>
             <img src="logo_8bit_green.svg" alt="GOODFUN" class="logo-img">
-            <span class="team-name" style="font-size: 0.8rem; letter-spacing: 1px;">GOODFUN<br>TEAM</span>
+            <span class="team-name" style="font-size: 0.8rem; letter-spacing: 1px; text-align: right;">GOODFUN<br>TEAM</span>
         </div>
 
         <div class="date-box">
@@ -123,14 +31,29 @@
         </div>
 
         <div class="info-grid">
-            <div class="cell"><span class="cell-label">定位地區</span><div class="cell-val" id="loc-val">同步中</div></div>
-            <div class="cell"><span class="cell-label">今日運勢</span><div class="cell-val" id="rank-val" style="color:var(--red); font-size:1.4rem;">--</div></div>
-            <div class="cell"><span class="cell-label">環境氣溫</span><div class="cell-val" id="temp-val">--°C</div></div>
+            <div class="cell">
+                <span class="cell-label">定位地區</span>
+                <div class="cell-val" id="loc-val">同步中</div>
+            </div>
+            <div class="cell">
+                <span class="cell-label">今日運勢</span>
+                <div class="cell-val" id="rank-val" style="color:var(--red); font-size:1.4rem;">--</div>
+            </div>
+            <div class="cell">
+                <span class="cell-label">環境氣溫</span>
+                <div class="cell-val" id="temp-val">--°C</div>
+            </div>
         </div>
 
         <div class="yiji-wrap">
-            <div class="yiji-box yi"><span class="yiji-head">宜</span><ul class="yiji-list" id="yi-list"></ul></div>
-            <div class="yiji-box ji"><span class="yiji-head">忌</span><ul class="yiji-list" id="ji-list"></ul></div>
+            <div class="yiji-box yi">
+                <span class="yiji-head">宜</span>
+                <ul class="yiji-list" id="yi-list"></ul>
+            </div>
+            <div class="yiji-box ji">
+                <span class="yiji-head">忌</span>
+                <ul class="yiji-list" id="ji-list"></ul>
+            </div>
         </div>
 
         <div class="maxim" id="maxim-text">讀取訊息...</div>
@@ -142,103 +65,9 @@
             </div>
         </div>
 
-        <div class="footer">GOODFUN TEAM // LUCKY CANDLE V7.4</div>
+        <div class="footer">GOODFUN TEAM // LUCKY CANDLE V7.5</div>
     </div>
 
-<script>
-    const MASTER_KEY = "GOODFUN_TOKEN_0427";
-    const rankMap = { SSSR: "極其幸運", SSR: "好事發生", SR: "頗為順利", R: "平淡是福", N: "日常依舊", SP: "因果未知" };
-
-    function getToday() { return new Date().toDateString(); }
-
-    // --- NFC 鎖定邏輯：重整必鎖 ---
-    window.onload = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const key = urlParams.get('key');
-
-        if (key === MASTER_KEY) {
-            // 驗證成功：立刻清除網址 Key (防止外流)
-            // 清除後若使用者重新整理，將抓不到 Key 而重新進入鎖定狀態
-            window.history.replaceState({}, document.title, window.location.pathname);
-            initApp();
-        } else {
-            // 顯示鎖定畫面
-            document.getElementById('lock-screen').style.display = 'flex';
-            document.getElementById('main-calendar').style.display = 'none';
-        }
-    };
-
-    async function initApp() {
-        const today = getToday();
-        const saved = JSON.parse(localStorage.getItem('daily_data'));
-        let data;
-        
-        // 內容維持「當天感應都一樣」，但存取必須經過上面的 Key 驗證
-        if (saved && saved.date === today) {
-            data = saved;
-        } else {
-            data = {
-                date: today,
-                rank: Object.keys(rankMap)[Math.floor(Math.random() * 6)],
-                yi: ["散步", "喝茶", "聽音樂", "早睡", "整理", "看書"].sort(()=>.5-Math.random()).slice(0,2),
-                ji: ["熬夜", "焦慮", "亂買", "滑手機", "生氣", "悲觀"].sort(()=>.5-Math.random()).slice(0,2),
-                maxim: "..."
-            };
-            try {
-                const res = await fetch('messages.json');
-                const msgs = await res.json();
-                data.maxim = msgs[Math.floor(Math.random() * msgs.length)];
-            } catch(e) { data.maxim = "路走對了，風景就會回來。"; }
-            localStorage.setItem('daily_data', JSON.stringify(data));
-        }
-        render(data);
-        updateWeather();
-    }
-
-    function render(data) {
-        document.getElementById('lock-screen').style.display = 'none';
-        document.getElementById('main-calendar').style.display = 'flex';
-        const now = new Date();
-        document.getElementById('m-tag').innerText = (now.getMonth() + 1) + "月";
-        document.getElementById('d-tag').innerText = now.getDate();
-        document.getElementById('w-tag').innerText = "星期" + ["日","一","二","三","四","五","六"][now.getDay()];
-        document.getElementById('rank-val').innerText = rankMap[data.rank];
-        document.getElementById('yi-list').innerHTML = data.yi.map(i => `<li>${i}</li>`).join('');
-        document.getElementById('ji-list').innerHTML = data.ji.map(i => `<li>${i}</li>`).join('');
-        document.getElementById('maxim-text').innerText = `「 ${data.maxim} 」`;
-        
-        const sw = localStorage.getItem('my_wish');
-        if (sw && localStorage.getItem('wish_date') === getToday()) showLockedWish(sw);
-    }
-
-    async function updateWeather() {
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            try {
-                const { latitude, longitude } = pos.coords;
-                const gRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
-                const gData = await gRes.json();
-                document.getElementById('loc-val').innerText = gData.address.suburb || gData.address.city || "新竹";
-                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
-                const wData = await wRes.json();
-                document.getElementById('temp-val').innerText = Math.round(wData.current_weather.temperature) + "°C";
-            } catch(e) {}
-        });
-    }
-
-    function setWish() {
-        const val = document.getElementById('wish-input').value.trim();
-        if(!val) return;
-        localStorage.setItem('my_wish', val);
-        localStorage.setItem('wish_date', getToday());
-        showLockedWish(val);
-    }
-
-    function showLockedWish(text) {
-        document.getElementById('wish-container').innerHTML = `
-            <div style="border: 2px solid var(--red); padding: 12px; text-align: center; color: var(--red); font-weight: 900; background: rgba(230,0,18,0.03);">
-                願望已封存：${text}
-            </div>`;
-    }
-</script>
+    <script src="script.js"></script>
 </body>
 </html>
