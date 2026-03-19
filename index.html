@@ -4,23 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lucky Candle – GOODFUN TEAM</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="lock-screen">
+    <div id="lock-screen" style="display: flex;">
         <h2>LUCKY CANDLE</h2>
-        <div id="lock-msg">請感應實體鑰匙解鎖今日運勢</div>
+        <div id="lock-msg">請感應實體鑰匙解鎖運勢</div>
     </div>
 
     <div class="calendar-paper" id="main-calendar">
-        
         <div class="top-nav">
             <span class="team-name">孤芳小隊</span>
-            <img src="logo_8bit_green.svg" alt="GOODFUN" class="logo-img">
+            <img src="logo_8bit_green.svg" alt="LOGO" class="logo-img" onerror="this.style.display='none'">
             <span class="team-name" style="font-size: 0.8rem; letter-spacing: 1px; text-align: right;">GOODFUN<br>TEAM</span>
         </div>
 
@@ -31,41 +28,26 @@
         </div>
 
         <div class="info-grid">
-            <div class="cell">
-                <span class="cell-label">定位地區</span>
-                <div class="cell-val" id="loc-val">同步中</div>
-            </div>
-            <div class="cell">
-                <span class="cell-label">今日運勢</span>
-                <div class="cell-val" id="rank-val" style="color:var(--red); font-size:1.4rem;">--</div>
-            </div>
-            <div class="cell">
-                <span class="cell-label">環境氣溫</span>
-                <div class="cell-val" id="temp-val">--°C</div>
-            </div>
+            <div class="cell"><span class="cell-label">定位地區</span><div class="cell-val" id="loc-val">同步中</div></div>
+            <div class="cell"><span class="cell-label">今日運勢</span><div class="cell-val" id="rank-val" style="color:var(--red); font-size:1.4rem;">--</div></div>
+            <div class="cell"><span class="cell-label">環境氣溫</span><div class="cell-val" id="temp-val">--°C</div></div>
         </div>
 
         <div class="yiji-wrap">
-            <div class="yiji-box yi">
-                <span class="yiji-head">宜</span>
-                <ul class="yiji-list" id="yi-list"></ul>
-            </div>
-            <div class="yiji-box ji">
-                <span class="yiji-head">忌</span>
-                <ul class="yiji-list" id="ji-list"></ul>
-            </div>
+            <div class="yiji-box yi"><span class="yiji-head">宜</span><ul class="yiji-list" id="yi-list"></ul></div>
+            <div class="yiji-box ji"><span class="yiji-head">忌</span><ul class="yiji-list" id="ji-list"></ul></div>
         </div>
 
         <div class="maxim" id="maxim-text">讀取訊息...</div>
 
         <div id="wish-container">
-            <div class="wish-zone" id="wish-form">
+            <div class="wish-zone">
                 <input type="text" id="wish-input" class="wish-in" placeholder="輸入今日願望..." maxlength="12">
                 <button class="wish-go" onclick="setWish()">點燃</button>
             </div>
         </div>
 
-        <div class="footer">GOODFUN TEAM // LUCKY CANDLE V7.5</div>
+        <div class="footer">GOODFUN TEAM // LUCKY CANDLE V7.6</div>
     </div>
 
     <script src="script.js"></script>
