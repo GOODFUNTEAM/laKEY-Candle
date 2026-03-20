@@ -11,7 +11,7 @@
 
     <div id="lock-screen" style="display: flex;">
         <h2>LUCKY CANDLE</h2>
-        <div id="lock-msg">請感應實體鑰匙解鎖運勢</div>
+        <div id="lock-msg">🔒 請感應實體鑰匙解鎖運勢</div>
     </div>
 
     <div class="calendar-paper" id="main-calendar">
@@ -28,14 +28,29 @@
         </div>
 
         <div class="info-grid">
-            <div class="cell"><span class="cell-label">定位地區</span><div class="cell-val" id="loc-val">同步中</div></div>
-            <div class="cell"><span class="cell-label">今日運勢</span><div class="cell-val" id="rank-val" style="color:var(--red); font-size:1.4rem;">--</div></div>
-            <div class="cell"><span class="cell-label">環境氣溫</span><div class="cell-val" id="temp-val">--°C</div></div>
+            <div class="cell">
+                <span class="cell-label">定位地區</span>
+                <div class="cell-val" id="loc-val">同步中</div>
+            </div>
+            <div class="cell">
+                <span class="cell-label">今日運勢</span>
+                <div class="cell-val" id="rank-val" style="color:var(--red); font-size:1.4rem;">--</div>
+            </div>
+            <div class="cell">
+                <span class="cell-label">環境氣溫</span>
+                <div class="cell-val" id="temp-val">--°C</div>
+            </div>
         </div>
 
         <div class="yiji-wrap">
-            <div class="yiji-box yi"><span class="yiji-head">宜</span><ul class="yiji-list" id="yi-list"></ul></div>
-            <div class="yiji-box ji"><span class="yiji-head">忌</span><ul class="yiji-list" id="ji-list"></ul></div>
+            <div class="yiji-box yi">
+                <span class="yiji-head">宜</span>
+                <ul class="yiji-list" id="yi-list"></ul>
+            </div>
+            <div class="yiji-box ji">
+                <span class="yiji-head">忌</span>
+                <ul class="yiji-list" id="ji-list"></ul>
+            </div>
         </div>
 
         <div class="maxim" id="maxim-text">讀取訊息...</div>
@@ -47,7 +62,7 @@
             </div>
         </div>
 
-        <div class="footer">GOODFUN TEAM // LUCKY CANDLE V7.6</div>
+        <div class="footer">GOODFUN TEAM // LUCKY CANDLE V7.9</div>
     </div>
 
     <script src="script.js"></script>
