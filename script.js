@@ -1,6 +1,6 @@
 const MASTER_KEY = "GOODFUN_TOKEN_0427";
 const rankMap = { SSSR: "極其幸運", SSR: "好事發生", SR: "頗為順利", R: "平淡是福", N: "日常依舊", SP: "因果未知" };
-const defaultMsgs = ["順著光走，就不會迷路。", "孤芳自賞，也是一種浪漫。", "慢慢來，比較快。"];
+const defaultMsgs = ["願原力與你同在。\nMay the Force be with you.", "保持好奇，是生活的解藥。", "慢慢來，比較快。"];
 
 function getToday() { return new Date().toDateString(); }
 
@@ -9,7 +9,6 @@ window.onload = () => {
     const key = params.get('key');
 
     if (key === MASTER_KEY) {
-        // 驗證成功，洗掉網址參數 (重整會因此重新鎖定)
         window.history.replaceState({}, document.title, window.location.pathname);
         initApp();
     } else {
@@ -27,12 +26,13 @@ async function initApp() {
         data = {
             date: today,
             rank: Object.keys(rankMap)[Math.floor(Math.random() * 6)],
-            yi: ["散步", "喝茶", "看書"].sort(()=>.5-Math.random()).slice(0,2),
-            ji: ["熬夜", "生氣", "焦慮"].sort(()=>.5-Math.random()).slice(0,2),
+            yi: ["散步", "喝茶", "看書", "整理", "早睡", "攝影"].sort(()=>.5-Math.random()).slice(0,2),
+            ji: ["熬夜", "生氣", "焦慮", "滑手機", "亂買", "悲觀"].sort(()=>.5-Math.random()).slice(0,2),
             maxim: "..."
         };
         try {
             const res = await fetch('messages.json');
+            if (!res.ok) throw new Error();
             const msgs = await res.json();
             data.maxim = msgs[Math.floor(Math.random() * msgs.length)];
         } catch(e) { 
@@ -46,8 +46,7 @@ async function initApp() {
 
 function render(data) {
     document.getElementById('lock-screen').style.display = 'none';
-    const main = document.getElementById('main-calendar');
-    main.style.display = 'flex';
+    document.getElementById('main-calendar').style.display = 'flex';
 
     const now = new Date();
     document.getElementById('m-tag').innerText = (now.getMonth() + 1) + "月";
@@ -56,25 +55,44 @@ function render(data) {
     document.getElementById('rank-val').innerText = rankMap[data.rank];
     document.getElementById('yi-list').innerHTML = data.yi.map(i => `<li>${i}</li>`).join('');
     document.getElementById('ji-list').innerHTML = data.ji.map(i => `<li>${i}</li>`).join('');
-    document.getElementById('maxim-text').innerText = `「 ${data.maxim} 」`;
+    document.getElementById('maxim-text').innerText = data.maxim;
 
     const sw = localStorage.getItem('my_wish');
     if (sw && localStorage.getItem('wish_date') === getToday()) showLockedWish(sw);
 }
 
 async function updateWeather() {
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-            const { latitude, longitude } = pos.coords;
-            const gRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
+    const defLat = 24.8047; // 預設點 (新竹)
+    const defLon = 120.9714;
+
+    if (!navigator.geolocation) {
+        fetchWeatherData(defLat, defLon, "新竹地區");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        async (p) => fetchWeatherData(p.coords.latitude, p.coords.longitude),
+        (err) => fetchWeatherData(defLat, defLon, "新竹地區"),
+        { timeout: 5000 }
+    );
+}
+
+async function fetchWeatherData(lat, lon, fallbackName = null) {
+    try {
+        if (!fallbackName) {
+            const gRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`);
             const gData = await gRes.json();
-            document.getElementById('loc-val').innerText = gData.address.suburb || gData.address.city || "地區";
-            
-            const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
-            const wData = await wRes.json();
-            document.getElementById('temp-val').innerText = Math.round(wData.current_weather.temperature) + "°C";
-        } catch(e) {}
-    });
+            document.getElementById('loc-val').innerText = gData.address.suburb || gData.address.city || "新竹地區";
+        } else {
+            document.getElementById('loc-val').innerText = fallbackName;
+        }
+        
+        const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+        const wData = await wRes.json();
+        document.getElementById('temp-val').innerText = Math.round(wData.current_weather.temperature) + "°C";
+    } catch(e) {
+        document.getElementById('loc-val').innerText = "連線中";
+    }
 }
 
 function setWish() {
@@ -86,5 +104,6 @@ function setWish() {
 }
 
 function showLockedWish(text) {
-    document.getElementById('wish-container').innerHTML = `<div style="border: 2px solid var(--red); padding: 12px; text-align: center; color: var(--red); font-weight: 900;">願望已封存：${text}</div>`;
+    const container = document.getElementById('wish-container');
+    if(container) container.innerHTML = `<div style="border: 2px solid var(--red); padding: 12px; text-align: center; color: var(--red); font-weight: 900; background: rgba(230,0,18,0.05);">願望已封存：${text}</div>`;
 }
