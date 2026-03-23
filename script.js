@@ -41,6 +41,8 @@ async function initApp() {
     }
     render(data);
     updateWeather();
+    // 確保啟動倒數
+    startCountdown();
 }
 
 function render(data) {
@@ -56,26 +58,32 @@ function render(data) {
     document.getElementById('ji-list').innerHTML = data.ji.map(i => `<li>${i}</li>`).join('');
     document.getElementById('maxim-text').innerText = data.maxim;
 
-    // 啟動倒數計時
-    startCountdown();
-
     const sw = localStorage.getItem('my_wish');
     if (sw && localStorage.getItem('wish_date') === getToday()) showLockedWish(sw);
 }
 
 function startCountdown() {
     const timerEl = document.getElementById('timer');
+    if (!timerEl) return;
+
     function update() {
         const now = new Date();
         const midnight = new Date();
         midnight.setHours(23, 59, 59, 999);
+        
         const diff = midnight - now;
-        if (diff <= 0) { timerEl.innerText = "00:00:00"; return; }
+        if (diff <= 0) {
+            timerEl.innerText = "00:00:00";
+            return;
+        }
+
         const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
         const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
         const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+        
         timerEl.innerText = `${h}:${m}:${s}`;
     }
+
     setInterval(update, 1000);
     update();
 }
@@ -102,7 +110,9 @@ async function fetchWeatherData(lat, lon, fallbackName = null) {
         const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
         const wData = await wRes.json();
         document.getElementById('temp-val').innerText = Math.round(wData.current_weather.temperature) + "°C";
-    } catch(e) { document.getElementById('loc-val').innerText = "連線中"; }
+    } catch(e) { 
+        document.getElementById('loc-val').innerText = "連線中"; 
+    }
 }
 
 function setWish() {
@@ -115,5 +125,5 @@ function setWish() {
 
 function showLockedWish(text) {
     const container = document.getElementById('wish-container');
-    if(container) container.innerHTML = `<div style="border: 2px solid var(--red); padding: 12px; text-align: center; color: var(--red); font-weight: 900; background: rgba(230,0,18,0.05);">願望已封存：${text}</div>`;
+    if(container) container.innerHTML = `<div style="border: 2px solid var(--red); padding: 8px; text-align: center; color: var(--red); font-weight: 900; background: rgba(230,0,18,0.05); font-size: 0.9rem;">願望已封存：${text}</div>`;
 }
