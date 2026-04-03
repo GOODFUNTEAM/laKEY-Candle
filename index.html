@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="lock-screen">
+    <div id="lock-screen" style="display: none;">
         <h2>LUCKY CANDLE</h2>
         <div id="lock-msg">🔒 請感應實體鑰匙解鎖運勢</div>
     </div>
@@ -27,9 +27,12 @@
         </div>
 
         <div class="info-grid">
-            <div class="cell"><span class="cell-label">地點</span><div class="cell-val" id="loc-val">同步中</div></div>
-            <div class="cell"><span class="cell-label">運勢</span><div class="cell-val" id="rank-val" style="color:var(--red);">--</div></div>
-            <div class="cell"><span class="cell-label">氣溫</span><div class="cell-val" id="temp-val">--°C</div></div>
+            <div class="cell"><span class="cell-label">地點</span><div class="cell-val" id="loc-val">定位中</div></div>
+            <div class="cell"><span class="cell-label">現在氣溫</span><div class="cell-val" id="temp-val">--°C</div></div>
+            <div class="cell"><span class="cell-label">運勢評級</span><div class="cell-val" id="rank-val" style="color:var(--red);">--</div></div>
+            <div class="cell"><span class="cell-label">今日高低溫</span><div class="cell-val" id="range-val">--/--</div></div>
+            <div class="cell"><span class="cell-label">降雨機率</span><div class="cell-val" id="rain-val">--%</div></div>
+            <div class="cell"><span class="cell-label">天空狀況</span><div class="cell-val" id="sky-val">--</div></div>
         </div>
 
         <div class="yiji-wrap">
@@ -39,12 +42,12 @@
 
         <div class="destiny-wrap">
             <div class="paper-card" id="card-destiny" onclick="tearPaper('destiny')">
-                <div class="card-front">? 命運 ?<br><span style="font-size:0.8rem;opacity:0.6;">(點擊撕開)</span></div>
-                <div class="card-back" id="text-destiny">命運金句...</div>
+                <div class="card-front">? 命運 ?<br><span style="font-size:0.6rem;opacity:0.6;">(點擊撕開)</span></div>
+                <div class="card-back" id="text-destiny">載入中...</div>
             </div>
             <div class="paper-card" id="card-opportunity" onclick="tearPaper('opportunity')">
-                <div class="card-front">! 機會 !<br><span style="font-size:0.8rem;opacity:0.6;">(點擊撕開)</span></div>
-                <div class="card-back" id="text-opportunity">今日任務...</div>
+                <div class="card-front">! 機會 !<br><span style="font-size:0.6rem;opacity:0.6;">(點擊撕開)</span></div>
+                <div class="card-back" id="text-opportunity">載入中...</div>
             </div>
         </div>
 
@@ -58,8 +61,7 @@
         <div class="countdown-zone">
             距離今日結束還有 <span id="timer">--:--:--</span>
         </div>
-
-        <div class="footer">GOODFUN TEAM // LUCKY CANDLE EDITION #---</div>
+        <div class="footer">GOODFUN TEAM // EDITION #---</div>
     </div>
     <script src="script.js"></script>
 </body>
