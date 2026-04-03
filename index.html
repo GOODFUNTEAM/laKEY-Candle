@@ -2,20 +2,18 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Lucky Candle – GOODFUN TEAM</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="lock-screen" style="display: flex;">
+    <div id="lock-screen">
         <h2>LUCKY CANDLE</h2>
-        <div id="lock-msg">🔒 請感應蠟燭鑰匙籤解鎖運勢</div>
+        <div id="lock-msg">🔒 請感應實體鑰匙解鎖運勢</div>
     </div>
 
     <div class="calendar-paper" id="main-calendar">
-        
         <a href="https://www.instagram.com/goodfun_team/" target="_blank" class="ig-link">
             <span class="team-name">孤芳小隊</span>
             <img src="logo_8bit_green.svg" alt="IG" class="logo-img" onerror="this.style.display='none'">
@@ -31,7 +29,7 @@
         <div class="info-grid">
             <div class="cell"><span class="cell-label">地點</span><div class="cell-val" id="loc-val">同步中</div></div>
             <div class="cell"><span class="cell-label">運勢</span><div class="cell-val" id="rank-val" style="color:var(--red);">--</div></div>
-            <div class="cell"><span class="cell-label">氣溫</span><div class="cell-val" id="temp-val">--</div></div>
+            <div class="cell"><span class="cell-label">氣溫</span><div class="cell-val" id="temp-val">--°C</div></div>
         </div>
 
         <div class="yiji-wrap">
@@ -39,7 +37,16 @@
             <div class="yiji-box ji"><span class="yiji-head">忌</span><ul class="yiji-list" id="ji-list"></ul></div>
         </div>
 
-        <div class="maxim" id="maxim-text">讀取中...</div>
+        <div class="destiny-wrap">
+            <div class="paper-card" id="card-destiny" onclick="tearPaper('destiny')">
+                <div class="card-front">? 命運 ?<br><span style="font-size:0.8rem;opacity:0.6;">(點擊撕開)</span></div>
+                <div class="card-back" id="text-destiny">命運金句...</div>
+            </div>
+            <div class="paper-card" id="card-opportunity" onclick="tearPaper('opportunity')">
+                <div class="card-front">! 機會 !<br><span style="font-size:0.8rem;opacity:0.6;">(點擊撕開)</span></div>
+                <div class="card-back" id="text-opportunity">今日任務...</div>
+            </div>
+        </div>
 
         <div id="wish-container">
             <div class="wish-zone">
@@ -52,9 +59,8 @@
             距離今日結束還有 <span id="timer">--:--:--</span>
         </div>
 
-        <div class="footer">GOODFUN TEAM // LUCKY CANDLE V9.2</div>
+        <div class="footer">GOODFUN TEAM // LUCKY CANDLE EDITION #---</div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
