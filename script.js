@@ -5,7 +5,10 @@ const tasks = ["跟愛的人說愛他", "畫下手邊物品", "深呼吸三次",
 function getToday() { return new Date().toDateString(); }
 
 window.onload = () => {
-    // 1. 彈出定位請求
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get('key');
+
+    // 啟動定位請求
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             p => fetchWeatherData(p.coords.latitude, p.coords.longitude),
@@ -13,48 +16,35 @@ window.onload = () => {
         );
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const key = params.get('key');
-
+    // --- 實體感應解鎖邏輯 ---
     if (key && key.startsWith(KEY_PREFIX)) {
         const id = key.replace(KEY_PREFIX, "");
-        localStorage.setItem('lucky_candle_id', id);
-        // 2. 自動抹除網址 Key
+        
+        // 抹除網址 Key 確保不能分享 URL 給別人直接看內容
         const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.replaceState({}, document.title, cleanURL);
+
+        // 啟動 App
         initApp(id);
     } else {
-        const savedID = localStorage.getItem('lucky_candle_id');
-        if (savedID) initApp(savedID);
-        else document.getElementById('lock-screen').style.display = 'flex';
+        // 重整時 URL 沒有 Key，回到鎖定畫面
+        document.getElementById('lock-screen').style.display = 'flex';
+        document.getElementById('main-calendar').style.display = 'none';
     }
 };
 
-async function fetchWeatherData(lat, lon, fallback = null) {
-    try {
-        if (!fallback) {
-            const g = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`);
-            const gd = await g.json();
-            document.getElementById('loc-val').innerText = gd.address.suburb || gd.address.city || "目前位置";
-        } else { document.getElementById('loc-val').innerText = fallback; }
-
-        const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`);
-        const wd = await w.json();
-        
-        document.getElementById('temp-val').innerText = Math.round(wd.current_weather.temperature) + "°C";
-        document.getElementById('range-val').innerText = `${Math.round(wd.daily.temperature_2m_max[0])}°/${Math.round(wd.daily.temperature_2m_min[0])}°`;
-        document.getElementById('rain-val').innerText = (wd.daily.precipitation_probability_max[0] || 0) + "%";
-        document.getElementById('sky-val').innerText = {0:"晴朗",1:"多雲",2:"陰天",3:"陰天",61:"雨天"}[wd.current_weather.weathercode] || "多雲";
-    } catch(e) { document.getElementById('loc-val').innerText = "連線中"; }
-}
-
+// --- 長期記憶與內容生成 ---
 async function initApp(id) {
     const today = getToday();
-    const storageKey = `daily_data_${id}`;
+    const storageKey = `lucky_data_v10_${id}`; 
     const saved = JSON.parse(localStorage.getItem(storageKey));
-    let data = (saved && saved.date === today) ? saved : null;
-
-    if (!data) {
+    
+    let data;
+    if (saved && saved.date === today) {
+        // 讀取這台手機今天的長期記憶 (包含已撕開的狀態)
+        data = saved;
+    } else {
+        // 今天第一次感應，生成今日專屬內容
         const seed = parseInt(id) || 0;
         const sr = () => { const x = Math.sin(seed + Math.random()) * 10000; return x - Math.floor(x); };
         data = {
@@ -73,6 +63,8 @@ async function initApp(id) {
         } catch(e) {}
         localStorage.setItem(storageKey, JSON.stringify(data));
     }
+    
+    window.current_id = id; // 全域記錄目前使用的 ID
     render(data);
     startCountdown();
 }
@@ -89,29 +81,56 @@ function render(d) {
     document.getElementById('ji-list').innerHTML = d.ji.map(i=>`<li>${i}</li>`).join('');
     document.getElementById('text-destiny').innerText = d.destiny;
     document.getElementById('text-opportunity').innerText = d.opp;
+    
+    // 從長期記憶中恢復撕紙效果
     if(d.tornD) document.getElementById('card-destiny').classList.add('tear-active');
     if(d.tornO) document.getElementById('card-opportunity').classList.add('tear-active');
+    
     document.querySelector('.footer').innerText = `GOODFUN TEAM // EDITION #${d.id}`;
 }
 
 function tearPaper(type) {
-    const id = localStorage.getItem('lucky_candle_id');
-    const key = `daily_data_${id}`;
-    const d = JSON.parse(localStorage.getItem(key));
+    const id = window.current_id;
+    if(!id) return;
+    const storageKey = `lucky_data_v10_${id}`;
+    const d = JSON.parse(localStorage.getItem(storageKey));
     if(!d) return;
-    if(type==='destiny') { document.getElementById('card-destiny').classList.add('tear-active'); d.tornD=true; }
-    else { document.getElementById('card-opportunity').classList.add('tear-active'); d.tornO=true; }
-    localStorage.setItem(key, JSON.stringify(d));
+
+    if(type==='destiny' && !d.tornD) { 
+        document.getElementById('card-destiny').classList.add('tear-active'); 
+        d.tornD=true; 
+    } else if(type==='opportunity' && !d.tornO) { 
+        document.getElementById('card-opportunity').classList.add('tear-active'); 
+        d.tornO=true; 
+    }
+    localStorage.setItem(storageKey, JSON.stringify(d));
+}
+
+async function fetchWeatherData(lat, lon, fallback = null) {
+    try {
+        if (!fallback) {
+            const g = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`);
+            const gd = await g.json();
+            document.getElementById('loc-val').innerText = gd.address.suburb || gd.address.city || "目前位置";
+        } else { document.getElementById('loc-val').innerText = fallback; }
+        const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`);
+        const wd = await w.json();
+        document.getElementById('temp-val').innerText = Math.round(wd.current_weather.temperature) + "°C";
+        document.getElementById('range-val').innerText = `${Math.round(wd.daily.temperature_2m_max[0])}°/${Math.round(wd.daily.temperature_2m_min[0])}°`;
+        document.getElementById('rain-val').innerText = (wd.daily.precipitation_probability_max[0] || 0) + "%";
+        document.getElementById('sky-val').innerText = {0:"晴朗",1:"多雲",2:"陰天",3:"陰天",61:"雨天"}[wd.current_weather.weathercode] || "多雲";
+    } catch(e) { document.getElementById('loc-val').innerText = "連線中"; }
 }
 
 function startCountdown() {
-    setInterval(() => {
+    function update() {
         const diff = new Date().setHours(23,59,59,999) - new Date();
         const h = Math.floor(diff/3600000).toString().padStart(2,'0');
         const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
         const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
         document.getElementById('timer').innerText = `${h}:${m}:${s}`;
-    }, 1000);
+    }
+    update(); setInterval(update, 1000);
 }
 
 function setWish() {
