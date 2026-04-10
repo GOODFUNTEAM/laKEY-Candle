@@ -10,14 +10,9 @@ window.onload = () => {
 
     if (key && key.startsWith(KEY_PREFIX)) {
         const id = key.replace(KEY_PREFIX, "");
-        
-        // 切換顯示狀態
         document.getElementById('lock-screen').style.display = 'none';
         document.getElementById('main-calendar').style.display = 'flex';
-        
         initApp(id);
-
-        // 抹除 URL 參數防止分享
         const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.replaceState({}, document.title, cleanURL);
     } else {
@@ -52,7 +47,7 @@ async function initApp(id) {
             rank: Object.keys(rankMap)[Math.floor(sr() * 6)],
             yi: ["散步", "喝茶", "看書", "整理", "早睡"].sort(()=>.5-sr()).slice(0,2),
             ji: ["熬夜", "生氣", "焦慮", "滑手機", "亂買"].sort(()=>.5-sr()).slice(0,2),
-            destiny: "今日無言，安靜生活。",
+            destiny: "命運在路上。",
             opp: tasks[Math.floor(sr() * tasks.length)],
             tornD: false, tornO: false
         };
@@ -90,6 +85,8 @@ function tearPaper(type) {
     const id = window.current_id; if(!id) return;
     const storageKey = `GF_LUCKY_DATA_${id}`;
     const d = JSON.parse(localStorage.getItem(storageKey)); if(!d) return;
+
+    if (window.navigator.vibrate) window.navigator.vibrate(50);
 
     if(type==='destiny' && !d.tornD) {
         document.getElementById('card-destiny').classList.add('tear-active');
