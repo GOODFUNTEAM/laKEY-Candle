@@ -12,7 +12,7 @@ body {
 }
 
 #lock-screen { text-align: center; color: #111; z-index: 100; font-family: 'Noto Serif TC', serif; display: flex; flex-direction: column; align-items: center; }
-#lock-screen h2 { font-size: 2.2rem; letter-spacing: 8px; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(255,255,255,0.8); }
+#lock-screen h2 { font-size: 2.2rem; letter-spacing: 8px; margin-bottom: 15px; }
 
 .calendar-paper {
     background-color: rgba(244, 242, 233, 0.88); 
@@ -27,7 +27,7 @@ body {
 
 .date-box { border: 3px solid var(--blue); flex: 2; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; margin-bottom: 8px; background: rgba(255,255,255,0.4); }
 .month-tag { position: absolute; top: 4px; left: 8px; color: var(--blue); font-weight: 900; font-size: 1.4rem; }
-.day-num { font-size: 22vh; font-weight: 900; color: var(--blue); line-height: 0.8; letter-spacing: -6px; }
+.day-num { font-size: 20vh; font-weight: 900; color: var(--blue); line-height: 0.8; letter-spacing: -6px; }
 .week-bar { width: 100%; background-color: var(--blue); color: white; text-align: center; font-size: 1.6rem; font-weight: 900; padding: 4px 0; margin-top: auto; }
 
 .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--ink); margin-bottom: 6px; background: rgba(255,255,255,0.6); }
@@ -43,26 +43,26 @@ body {
 .yiji-head { font-weight: 900; font-size: 1.2rem; color: var(--red); display: block; }
 .yiji-list { font-size: 0.85rem; font-weight: 900; list-style: none; display: flex; justify-content: center; gap: 8px; }
 
-/* 撕紙卡片核心 */
+/* 撕紙卡片核心修正 */
 .destiny-wrap { display: flex; gap: 8px; margin-bottom: 8px; height: 12vh; min-height: 80px; }
 .paper-card { 
     flex: 1; background: #fff; border: 2px solid var(--ink); 
     cursor: pointer; position: relative; 
-    /* 重要：不要 overflow: hidden，紙片才能飛出去 */
 }
 
 .card-front { 
     position: absolute; inset: 0; background: #ddd; color: #444; 
     display: flex; flex-direction: column; justify-content: center; align-items: center; 
-    font-weight: 900; z-index: 20; border: 1px dashed #888; font-size: 0.9rem;
+    font-weight: 900; z-index: 50; border: 1px dashed #888; font-size: 0.9rem;
     transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s;
-    pointer-events: none; /* 讓點擊穿透到父層的 onclick */
+    pointer-events: none; /* 核心：讓點擊穿透 */
+    transform-origin: center bottom;
 }
 
 /* 撕開動畫：向上彈飛並旋轉 */
 .tear-active .card-front { 
-    transform: translateY(-130%) rotate(-10deg) scale(0.9); 
-    opacity: 0; 
+    transform: translateY(-150%) rotate(-15deg) scale(0.8) !important; 
+    opacity: 0 !important; 
 }
 
 /* 運用你的 tear_edge.jpg 作為毛邊細節 */
