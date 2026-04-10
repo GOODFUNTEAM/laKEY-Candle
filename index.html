@@ -16,7 +16,6 @@
     <div class="calendar-paper" id="main-calendar" style="display: none;">
         <a href="https://www.instagram.com/goodfun_team/" target="_blank" class="ig-link">
             <span class="team-name">孤芳小隊</span>
-            <img src="logo_8bit_green.svg" alt="IG" class="logo-img" onerror="this.style.opacity='0'">
             <span class="team-name" style="font-size: 0.7rem; text-align: right; letter-spacing: 0;">GOODFUN<br>TEAM</span>
         </a>
 
@@ -42,11 +41,11 @@
 
         <div class="destiny-wrap">
             <div class="paper-card" id="card-destiny" onclick="tearPaper('destiny')">
-                <div class="card-front">? 命運 ?<br><span style="font-size:0.6rem;opacity:0.6;">(點擊撕開)</span></div>
+                <div class="card-front">? 命運 ?<br><span style="font-size:0.5rem;opacity:0.6;">(點擊撕開)</span></div>
                 <div class="card-back" id="text-destiny">載入中...</div>
             </div>
             <div class="paper-card" id="card-opportunity" onclick="tearPaper('opportunity')">
-                <div class="card-front">! 機會 !<br><span style="font-size:0.6rem;opacity:0.6;">(點擊撕開)</span></div>
+                <div class="card-front">! 機會 !<br><span style="font-size:0.5rem;opacity:0.6;">(點擊撕開)</span></div>
                 <div class="card-back" id="text-opportunity">載入中...</div>
             </div>
         </div>
@@ -58,8 +57,10 @@
             </div>
         </div>
 
-        <div class="countdown-zone">距離今日結束還有 <span id="timer">--:--:--</span></div>
-        <div class="footer">GOODFUN TEAM // EDITION #---</div>
+        <div class="footer">
+            <div style="font-size: 0.5rem; opacity: 0.5; margin-bottom: 2px;">距離今日結束還有 <span id="timer">--:--:--</span></div>
+            GOODFUN TEAM // EDITION #<span id="edition-id">---</span>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
