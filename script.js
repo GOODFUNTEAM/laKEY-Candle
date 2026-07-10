@@ -1,5 +1,4 @@
 const KEY_PREFIX = "GF_";
-const rankMap = { SSSR: "極其幸運", SSR: "好事發生", SR: "頗為順利", R: "平淡是福", N: "日常依舊", SP: "因果未知" };
 const tasks = ["跟愛的人說愛他", "畫下手邊物品", "深呼吸三次", "整理書桌雜物", "對鏡子微笑", "喝一杯溫水"];
 
 function getToday() { return new Date().toDateString(); }
@@ -65,8 +64,12 @@ function completeSetup() {
     const birthday = document.getElementById('setup-birthday').value || null;
     saveProfile(id, { nickname, birthday });
     document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('main-calendar').style.display = 'flex';
-    initApp(id, { nickname, birthday });
+
+    // 開箱儀式感：只有「第一次真正建立 profile」才會觸發，之後（例如清快取重設）就不會再出現
+    showWelcomeCeremony(nickname, () => {
+        document.getElementById('main-calendar').style.display = 'flex';
+        initApp(id, { nickname, birthday });
+    });
 }
 
 function skipSetup() {
@@ -75,6 +78,18 @@ function skipSetup() {
     document.getElementById('setup-screen').style.display = 'none';
     document.getElementById('main-calendar').style.display = 'flex';
     initApp(id, { nickname: "", birthday: null });
+}
+
+function showWelcomeCeremony(nickname, onDone) {
+    const screen = document.getElementById('welcome-screen');
+    const text = document.getElementById('welcome-text');
+    text.innerText = nickname ? `${nickname}，你的專屬蠟燭已點亮` : "你的專屬蠟燭已點亮";
+    screen.style.display = 'flex';
+    // 動畫時長對應 CSS 的 fadeInOut (2.6s)，結束後才進入主畫面
+    setTimeout(() => {
+        screen.style.display = 'none';
+        onDone();
+    }, 2600);
 }
 
 function renderProfile(profile) {
@@ -119,13 +134,13 @@ async function initApp(id, profile) {
         data = saved;
     } else {
         const seed = hashId(id);
-        const sr = () => { 
-            const x = Math.sin(seed + new Date().getDate()) * 10000; 
-            return x - Math.floor(x); 
+        const sr = () => {
+            const x = Math.sin(seed + new Date().getDate()) * 10000;
+            return x - Math.floor(x);
         };
         data = {
             date: today, id: id,
-            rank: Object.keys(rankMap)[Math.floor(sr() * 6)],
+            theme: "今天，慢慢來也沒關係",
             yi: ["散步", "喝茶", "看書", "整理", "早睡"].sort(()=>.5-sr()).slice(0,2),
             ji: ["熬夜", "生氣", "焦慮", "滑手機", "亂買"].sort(()=>.5-sr()).slice(0,2),
             destiny: "命運在路上。",
@@ -134,9 +149,10 @@ async function initApp(id, profile) {
         };
         try {
             const r = await fetch('messages.json');
-            if(r.ok) {
+            if (r.ok) {
                 const m = await r.json();
-                data.destiny = m[Math.floor(sr() * m.length)];
+                if (m.themes && m.themes.length) data.theme = m.themes[Math.floor(sr() * m.themes.length)];
+                if (m.destinies && m.destinies.length) data.destiny = m.destinies[Math.floor(sr() * m.destinies.length)];
             }
         } catch(e) {}
         localStorage.setItem(storageKey, JSON.stringify(data));
@@ -144,6 +160,7 @@ async function initApp(id, profile) {
     window.current_id = id;
     render(data);
     startCountdown();
+    loadTodayWish(id, today);
 }
 
 function render(d) {
@@ -151,13 +168,13 @@ function render(d) {
     document.getElementById('m-tag').innerText = (now.getMonth()+1)+"月";
     document.getElementById('d-tag').innerText = now.getDate();
     document.getElementById('w-tag').innerText = "星期"+["日","一","二","三","四","五","六"][now.getDay()];
-    document.getElementById('rank-val').innerText = rankMap[d.rank];
+    document.getElementById('theme-text').innerText = d.theme;
     document.getElementById('yi-list').innerHTML = d.yi.map(i=>`<li>${i}</li>`).join('');
     document.getElementById('ji-list').innerHTML = d.ji.map(i=>`<li>${i}</li>`).join('');
     document.getElementById('text-destiny').innerText = d.destiny;
     document.getElementById('text-opportunity').innerText = d.opp;
     document.getElementById('edition-id').innerText = d.id;
-    
+
     if(d.tornD) document.getElementById('card-destiny').classList.add('tear-active');
     if(d.tornO) document.getElementById('card-opportunity').classList.add('tear-active');
 }
@@ -207,7 +224,163 @@ function startCountdown() {
     update(); setInterval(update, 1000);
 }
 
+// ===== 願望功能：每天可以許一個新的，存進 localStorage =====
+function wishKey(id, today) { return `GF_WISH_${id}_${today}`; }
+
+function loadTodayWish(id, today) {
+    const saved = localStorage.getItem(wishKey(id, today));
+    if (saved) {
+        renderWishSaved(saved);
+    }
+}
+
 function setWish() {
+    const id = window.current_id; if (!id) return;
     const v = document.getElementById('wish-input').value.trim(); if(!v) return;
-    document.getElementById('wish-container').innerHTML = `<div style="border:2px solid var(--red);padding:8px;color:var(--red);font-weight:900;text-align:center;background:rgba(255,255,255,0.7);">願望已封存：${v}</div>`;
+    localStorage.setItem(wishKey(id, getToday()), v);
+    renderWishSaved(v);
+}
+
+function renderWishSaved(v) {
+    document.getElementById('wish-container').innerHTML =
+        `<div style="border:2px solid var(--red);padding:8px;color:var(--red);font-weight:900;text-align:center;background:rgba(255,255,255,0.7);font-family:'Zhi Mang Xing',cursive;">今日願望已封存：${v}</div>`;
+}
+
+// ===== 吹蠟燭互動（選用）：點擊吹熄 或 開麥克風真的吹，兩者觸發同一個結果 =====
+let micStream = null;
+let micActive = false;
+
+function blowCandle(mode) {
+    document.getElementById('candle-visual').innerText = '🕯️💨';
+    document.getElementById('candle-result').innerText = '願望已被聽見';
+    if (window.navigator.vibrate) window.navigator.vibrate([30,40,30]);
+    setTimeout(() => {
+        document.getElementById('candle-visual').innerHTML = '🕯️ <span id="candle-label">點一下吹熄蠟燭</span>';
+    }, 2200);
+}
+
+async function toggleMicBlow() {
+    const btn = document.getElementById('candle-mic-toggle');
+    if (micActive) {
+        stopMicBlow();
+        return;
+    }
+    try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micActive = true;
+        btn.classList.add('active');
+        btn.innerText = '🎙️ 監聽中...對著手機吹一口氣';
+        listenForBlow(micStream);
+    } catch (e) {
+        document.getElementById('candle-result').innerText = '沒有取得麥克風權限，改用點擊吹熄也可以喔';
+    }
+}
+
+function stopMicBlow() {
+    if (micStream) micStream.getTracks().forEach(t => t.stop());
+    micStream = null; micActive = false;
+    const btn = document.getElementById('candle-mic-toggle');
+    btn.classList.remove('active');
+    btn.innerText = '🎙️ 開麥克風真的吹';
+}
+
+function listenForBlow(stream) {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+
+    function check() {
+        if (!micActive) { ctx.close(); return; }
+        analyser.getByteFrequencyData(data);
+        const avg = data.reduce((a,b)=>a+b,0) / data.length;
+        if (avg > 55) { // 吹氣音量閾值，環境安靜時較容易觸發
+            blowCandle('mic');
+            stopMicBlow();
+            ctx.close();
+            return;
+        }
+        requestAnimationFrame(check);
+    }
+    check();
+}
+
+// ===== 分享圖卡：用 Canvas 另外畫一張乾淨版面，不直接截圖現有畫面 =====
+function shareCard() {
+    const id = window.current_id; if (!id) return;
+    const storageKey = `GF_LUCKY_DATA_${id}`;
+    const d = JSON.parse(localStorage.getItem(storageKey)); if (!d) return;
+    const profile = getProfile(id) || {};
+
+    const canvas = document.getElementById('share-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    // 背景
+    ctx.fillStyle = '#D42A1D';
+    ctx.fillRect(0, 0, W, H);
+    // 卡片
+    ctx.fillStyle = '#F2EEE3';
+    ctx.fillRect(40, 60, W-80, H-180);
+    ctx.strokeStyle = '#181818';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(40, 60, W-80, H-180);
+
+    const now = new Date();
+    const dateStr = `${now.getMonth()+1}月${now.getDate()}日 星期${["日","一","二","三","四","五","六"][now.getDay()]}`;
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#181818';
+    ctx.font = '32px sans-serif';
+    ctx.fillText(dateStr, W/2, 150);
+
+    if (profile.nickname) {
+        ctx.fillStyle = '#1C4EA0';
+        ctx.font = 'bold 26px sans-serif';
+        ctx.fillText(`${profile.nickname} 的今日運勢`, W/2, 200);
+    }
+
+    ctx.fillStyle = '#D42A1D';
+    ctx.font = 'bold 40px sans-serif';
+    wrapText(ctx, d.theme, W/2, 320, W-160, 50);
+
+    ctx.fillStyle = '#181818';
+    ctx.font = '26px sans-serif';
+    wrapText(ctx, d.destiny, W/2, 480, W-160, 38);
+
+    ctx.fillStyle = '#181818';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText(`GOODFUN TEAM // EDITION #${d.id}`, W/2, H-100);
+
+    canvas.toBlob(async (blob) => {
+        const file = new File([blob], 'lucky-candle.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({ files: [file], title: 'Lucky Candle 今日運勢' });
+                return;
+            } catch(e) { /* 使用者取消分享，不用特別處理 */ }
+        }
+        // 不支援 Web Share API 的裝置：開新分頁，讓使用者長按存圖
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    });
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const chars = text.split('');
+    let line = '', lines = [];
+    for (const c of chars) {
+        const test = line + c;
+        if (ctx.measureText(test).width > maxWidth && line) {
+            lines.push(line);
+            line = c;
+        } else {
+            line = test;
+        }
+    }
+    if (line) lines.push(line);
+    const startY = y - (lines.length - 1) * lineHeight / 2;
+    lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
 }

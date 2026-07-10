@@ -1,106 +1,157 @@
-:root { --paper: #F4F2E9; --blue: #0044CC; --red: #D30000; --ink: #111111; }
+:root {
+    --red: #D42A1D;      /* 背景／標題主色 */
+    --blue: #1C4EA0;     /* 數字／資訊專屬色 */
+    --paper: #F2EEE3;    /* 卡片浮貼底色 */
+    --ink: #181818;      /* 補充說明文字 */
+}
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
-body { 
-    background-image: url('bg_paper.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-color: #F4F2E9;
-    display: flex; justify-content: center; align-items: center; 
-    height: 100dvh; width: 100vw; overflow: hidden; font-family: sans-serif;
+body {
+    background-color: var(--red);
+    display: flex; justify-content: center; align-items: center;
+    height: 100dvh; width: 100vw; overflow: hidden;
+    font-family: 'Noto Sans TC', sans-serif;
+    position: relative;
+}
+/* 滿版紅底噴漆顆粒紋理 */
+body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    filter: url(#bg-grain);
 }
 
-#lock-screen { text-align: center; color: #111; z-index: 100; font-family: 'Noto Serif TC', serif; display: flex; flex-direction: column; align-items: center; }
-#lock-screen h2 { font-size: 2.2rem; letter-spacing: 8px; margin-bottom: 15px; }
-#lock-hint { margin-top: 14px; font-size: 0.65rem; font-family: sans-serif; color: #a33; opacity: 0.8; max-width: 260px; line-height: 1.5; }
+#lock-screen, #setup-screen, #welcome-screen { position: relative; z-index: 2; }
+
+#lock-screen {
+    text-align: center; color: var(--paper); display: flex; flex-direction: column; align-items: center;
+}
+#lock-screen h2 {
+    font-family: 'Zhi Mang Xing', cursive; font-size: 4.2rem; line-height: 0.95;
+    letter-spacing: 4px; margin-bottom: 18px; color: var(--paper);
+    filter: url(#grain-filter);
+    transform: rotate(-2deg);
+}
+#lock-msg { font-family: 'Noto Sans TC', sans-serif; font-weight: 900; font-size: 1rem; color: var(--paper); }
+#lock-hint {
+    margin-top: 16px; font-size: 0.65rem; font-family: sans-serif; color: var(--paper);
+    opacity: 0.75; max-width: 260px; line-height: 1.6;
+}
 
 /* 首次設定畫面（暱稱 / 生日） */
 #setup-screen {
-    display: none; text-align: center; color: var(--ink); z-index: 100;
-    font-family: 'Noto Serif TC', serif; flex-direction: column; align-items: center;
-    background-color: rgba(244, 242, 233, 0.95); width: 90vw; max-width: 340px;
-    padding: 24px 20px; border: 3px solid var(--ink); box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+    display: none; text-align: center; color: var(--ink);
+    flex-direction: column; align-items: center;
+    background-color: var(--paper); width: 90vw; max-width: 340px;
+    padding: 26px 20px; border: 4px solid var(--ink); box-shadow: 8px 8px 0px rgba(0,0,0,0.35);
+    transform: rotate(-1deg);
 }
-#setup-screen h3 { font-size: 1.4rem; letter-spacing: 4px; margin-bottom: 6px; }
+#setup-screen h3 {
+    font-family: 'Zhi Mang Xing', cursive; font-size: 2rem; letter-spacing: 2px;
+    margin-bottom: 6px; color: var(--red);
+}
 #setup-screen p { font-family: sans-serif; font-size: 0.7rem; color: #555; margin-bottom: 16px; }
 .setup-field { text-align: left; margin-bottom: 12px; font-family: sans-serif; }
-.setup-field label { display: block; font-size: 0.7rem; font-weight: 900; color: var(--red); margin-bottom: 4px; }
+.setup-field label { display: block; font-size: 0.7rem; font-weight: 900; color: var(--blue); margin-bottom: 4px; }
 .setup-field input { width: 100%; border: 2px solid var(--ink); padding: 8px; font-size: 0.9rem; font-family: sans-serif; outline: none; background: #fff; }
 .setup-actions { display: flex; gap: 8px; margin-top: 8px; width: 100%; }
 .setup-actions button { flex: 1; padding: 10px; font-weight: 900; font-family: sans-serif; border: 2px solid var(--ink); cursor: pointer; background: #fff; }
-.setup-actions button.primary { background: var(--blue); color: #fff; }
-.setup-skip { margin-top: 10px; font-size: 0.65rem; color: #888; text-decoration: underline; cursor: pointer; font-family: sans-serif; }
+.setup-actions button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.setup-skip { margin-top: 10px; font-size: 0.65rem; color: #777; text-decoration: underline; cursor: pointer; font-family: sans-serif; }
+
+/* 開箱儀式感歡迎畫面：只有首次建立 profile 時短暫出現 */
+#welcome-screen {
+    display: none; position: fixed; inset: 0; z-index: 50;
+    background: var(--red); align-items: center; justify-content: center;
+    animation: fadeInOut 2.6s ease forwards;
+}
+#welcome-text {
+    font-family: 'Zhi Mang Xing', cursive; font-size: 2rem; color: var(--paper);
+    text-align: center; padding: 0 30px; filter: url(#grain-filter);
+}
+@keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+#nickname-tag { font-family: sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--blue); text-align: center; margin-bottom: 4px; letter-spacing: 1px; }
+#bday-banner { display: none; text-align: center; font-family: sans-serif; font-size: 0.7rem; font-weight: 900; color: var(--paper); background: var(--red); padding: 4px 6px; margin-bottom: 6px; border: 2px solid var(--ink); }
 
 .calendar-paper {
-    background-color: rgba(244, 242, 233, 0.88); 
-    width: 94vw; max-width: 400px; height: 96dvh; padding: 12px; border: 4px solid var(--ink);
-    display: flex; flex-direction: column; box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
-    position: relative; backdrop-filter: blur(1px);
+    background-color: var(--paper);
+    width: 94vw; max-width: 400px; height: 96dvh; padding: 14px; border: 5px solid var(--ink);
+    display: flex; flex-direction: column; box-shadow: 10px 10px 0px rgba(0,0,0,0.4);
+    position: relative; z-index: 2; transform: rotate(0.6deg);
     animation: slideUp 0.6s ease-out;
 }
 
-.ig-link { text-decoration: none; display: flex; justify-content: space-between; align-items: center; border-bottom: 5px double var(--ink); padding-bottom: 4px; margin-bottom: 8px; color: var(--ink); }
-.team-name { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; font-weight: 900; }
-#nickname-tag { font-family: sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--blue); text-align: center; margin-bottom: 4px; }
-#bday-banner { display: none; text-align: center; font-family: sans-serif; font-size: 0.7rem; font-weight: 900; color: #fff; background: var(--red); padding: 4px 6px; margin-bottom: 6px; }
+.ig-link { text-decoration: none; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--ink); padding-bottom: 4px; margin-bottom: 8px; color: var(--ink); }
+.team-name { font-family: 'Zhi Mang Xing', cursive; font-size: 1.3rem; font-weight: 700; }
 
-.date-box { border: 3px solid var(--blue); flex: 2; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; margin-bottom: 8px; background: rgba(255,255,255,0.4); }
-.month-tag { position: absolute; top: 4px; left: 8px; color: var(--blue); font-weight: 900; font-size: 1.4rem; }
-.day-num { font-size: 20vh; font-weight: 900; color: var(--blue); line-height: 0.8; letter-spacing: -6px; }
-.week-bar { width: 100%; background-color: var(--blue); color: white; text-align: center; font-size: 1.6rem; font-weight: 900; padding: 4px 0; margin-top: auto; }
+.date-box { border: 3px solid var(--red); flex: 2; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; margin-bottom: 8px; background: rgba(255,255,255,0.5); overflow: hidden; }
+.month-tag { position: absolute; top: 4px; left: 8px; color: var(--ink); font-weight: 900; font-size: 1.3rem; font-family: 'Noto Sans TC', sans-serif; letter-spacing: 2px; }
+.day-num { font-size: 22vh; font-weight: 900; color: var(--blue); line-height: 0.8; letter-spacing: -8px; font-family: 'Archivo Black', sans-serif; transform: rotate(-3deg); }
+.week-bar { width: 100%; background-color: var(--ink); color: var(--paper); text-align: center; font-size: 1.4rem; font-weight: 900; padding: 4px 0; margin-top: auto; font-family: 'Zhi Mang Xing', cursive; letter-spacing: 6px; }
 
-.info-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--ink); margin-bottom: 6px; background: rgba(255,255,255,0.6); }
-.cell { border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 4px 0; text-align: center; }
-.cell:nth-child(3n) { border-right: none; }
-.cell:nth-last-child(-n+3) { border-bottom: none; }
-.cell-label { color: var(--red); font-weight: 900; font-size: 0.6rem; display: block; }
-.cell-val { font-weight: 900; font-size: 0.8rem; color: var(--ink); }
-
-.yiji-wrap { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); background: rgba(255,255,255,0.6); margin-bottom: 6px; }
-.yiji-box { padding: 4px; text-align: center; }
-.yiji-box.yi { border-right: 2px solid var(--ink); }
-.yiji-head { font-weight: 900; font-size: 1.2rem; color: var(--red); display: block; }
-.yiji-list { font-size: 0.85rem; font-weight: 900; list-style: none; display: flex; justify-content: center; gap: 8px; }
-
-/* 撕紙卡片核心修正 */
-.destiny-wrap { display: flex; gap: 8px; margin-bottom: 8px; height: 12vh; min-height: 80px; }
-.paper-card { 
-    flex: 1; background: #fff; border: 2px solid var(--ink); 
-    cursor: pointer; position: relative; 
+/* 今日一句話定調：取代原評級系統，做成醒目主標 */
+#theme-banner {
+    text-align: center; margin: 8px 0; padding: 6px 4px;
+    font-family: 'Zhi Mang Xing', cursive; font-size: 1.3rem; color: var(--red);
+    border-top: 3px dashed var(--ink); border-bottom: 3px dashed var(--ink);
 }
+#theme-star, #theme-star2 { color: var(--blue); font-size: 0.9rem; }
 
-.card-front { 
-    position: absolute; inset: 0; background: #ddd; color: #444; 
-    display: flex; flex-direction: column; justify-content: center; align-items: center; 
-    font-weight: 900; z-index: 50; border: 1px dashed #888; font-size: 0.9rem;
+.info-grid { display: grid; grid-template-columns: repeat(5, 1fr); border: 2px solid var(--ink); margin-bottom: 6px; background: rgba(255,255,255,0.7); }
+.cell { border-right: 2px solid var(--ink); padding: 4px 2px; text-align: center; }
+.cell:last-child { border-right: none; }
+.cell-label { color: var(--ink); font-weight: 900; font-size: 0.5rem; display: block; opacity: 0.7; }
+.cell-val { font-weight: 900; font-size: 0.7rem; color: var(--blue); font-family: 'Archivo Black', sans-serif; }
+
+.yiji-wrap { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); background: rgba(255,255,255,0.7); margin-bottom: 6px; }
+.yiji-box { padding: 4px; text-align: center; }
+.yiji-box.yi { border-right: 3px double var(--ink); }
+.yiji-head { font-weight: 900; font-size: 1.3rem; color: var(--red); display: block; font-family: 'Zhi Mang Xing', cursive; }
+.yiji-list { font-size: 0.85rem; font-weight: 900; list-style: none; display: flex; justify-content: center; gap: 8px; color: var(--ink); }
+
+.destiny-wrap { display: flex; gap: 8px; margin-bottom: 8px; height: 12vh; min-height: 76px; }
+.paper-card {
+    flex: 1; background: #fff; border: 2px solid var(--ink);
+    cursor: pointer; position: relative;
+}
+.card-front {
+    position: absolute; inset: 0; background: var(--red); color: var(--paper);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    font-weight: 900; z-index: 50; border: 1px dashed var(--paper); font-size: 0.9rem;
+    font-family: 'Zhi Mang Xing', cursive;
     transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s;
-    pointer-events: none; /* 核心：讓點擊穿透 */
+    pointer-events: none;
     transform-origin: center bottom;
 }
-
-/* 撕開動畫：向上彈飛並旋轉 */
-.tear-active .card-front { 
-    transform: translateY(-150%) rotate(-15deg) scale(0.8) !important; 
-    opacity: 0 !important; 
+.tear-active .card-front {
+    transform: translateY(-150%) rotate(-15deg) scale(0.8) !important;
+    opacity: 0 !important;
 }
-
-/* 運用你的 tear_edge.png 作為毛邊細節 */
 .paper-card::after {
     content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 20px;
     background: url('tear_edge.png') bottom center; background-size: cover;
     mix-blend-mode: multiply; opacity: 0.4; pointer-events: none; z-index: 5;
 }
-
-.card-back { 
-    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; 
-    text-align: center; padding: 6px; font-size: 0.85rem; font-weight: 800; z-index: 10;
+.card-back {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 6px; font-size: 0.8rem; font-weight: 800; z-index: 10; color: var(--ink);
 }
 
+/* 吹蠟燭互動（選用） */
+#candle-zone { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 8px; font-family: sans-serif; }
+#candle-visual { cursor: pointer; font-size: 0.85rem; font-weight: 900; color: var(--ink); background: rgba(255,255,255,0.6); border: 2px solid var(--ink); padding: 6px 10px; width: 100%; text-align: center; }
+#candle-mic-toggle { cursor: pointer; font-size: 0.65rem; color: var(--blue); text-decoration: underline; }
+#candle-mic-toggle.active { color: var(--red); font-weight: 900; }
+#candle-result { font-size: 0.7rem; font-weight: 900; color: var(--red); min-height: 1em; }
+
 .wish-zone { display: flex; border: 2px solid var(--red); background: white; margin-bottom: 8px; }
-.wish-in { flex: 1; border: none; padding: 8px; font-weight: bold; outline: none; }
-.wish-go { background: var(--red); color: white; border: none; padding: 0 15px; font-weight: 900; }
+.wish-in { flex: 1; border: none; padding: 8px; font-weight: bold; outline: none; font-family: sans-serif; }
+.wish-go { background: var(--red); color: var(--paper); border: none; padding: 0 15px; font-weight: 900; font-family: 'Zhi Mang Xing', cursive; font-size: 1.1rem; cursor: pointer; }
 
-.footer { text-align: center; font-size: 0.6rem; font-weight: 900; margin-top: auto; padding-top: 4px; border-top: 2px solid var(--ink); }
+.footer { text-align: center; font-size: 0.6rem; font-weight: 900; margin-top: auto; padding-top: 4px; border-top: 2px solid var(--ink); color: var(--ink); }
+.footer-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+#share-btn {
+    background: var(--ink); color: var(--paper); border: none; padding: 5px 10px;
+    font-weight: 900; font-size: 0.6rem; cursor: pointer; font-family: sans-serif;
+}
 
-@keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(15px) rotate(0.6deg); opacity: 0; } to { transform: translateY(0) rotate(0.6deg); opacity: 1; } }
