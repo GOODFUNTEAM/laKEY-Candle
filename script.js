@@ -4,19 +4,50 @@ const tasks = ["跟愛的人說愛他", "畫下手邊物品", "深呼吸三次",
 
 function getToday() { return new Date().toDateString(); }
 
+// 支援短數字 ID（GF_001）與長亂碼 ID（GF_x7K9pQ2mZ8vL）兩種格式，
+// 用簡單字串雜湊產生數字種子，取代原本只能吃數字的 parseInt(id)
+function hashId(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) {
+        h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    }
+    return h;
+}
+
+function profileKey(id) { return `GF_PROFILE_${id}`; }
+function getProfile(id) {
+    try { return JSON.parse(localStorage.getItem(profileKey(id))); } catch(e) { return null; }
+}
+function saveProfile(id, profile) {
+    localStorage.setItem(profileKey(id), JSON.stringify(profile));
+}
+
 window.onload = () => {
     const params = new URLSearchParams(window.location.search);
     const key = params.get('key');
 
     if (key && key.startsWith(KEY_PREFIX)) {
         const id = key.replace(KEY_PREFIX, "");
+        window.current_id = id;
+        const profile = getProfile(id);
+
         document.getElementById('lock-screen').style.display = 'none';
-        document.getElementById('main-calendar').style.display = 'flex';
-        initApp(id);
+
+        if (!profile) {
+            // 第一次感應：先請使用者設定暱稱與生日
+            document.getElementById('main-calendar').style.display = 'none';
+            document.getElementById('setup-screen').style.display = 'flex';
+        } else {
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('main-calendar').style.display = 'flex';
+            initApp(id, profile);
+        }
+
         const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.replaceState({}, document.title, cleanURL);
     } else {
         document.getElementById('lock-screen').style.display = 'flex';
+        document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('main-calendar').style.display = 'none';
     }
 
@@ -28,7 +59,57 @@ window.onload = () => {
     }
 };
 
-async function initApp(id) {
+function completeSetup() {
+    const id = window.current_id; if (!id) return;
+    const nickname = document.getElementById('setup-nickname').value.trim();
+    const birthday = document.getElementById('setup-birthday').value || null;
+    saveProfile(id, { nickname, birthday });
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('main-calendar').style.display = 'flex';
+    initApp(id, { nickname, birthday });
+}
+
+function skipSetup() {
+    const id = window.current_id; if (!id) return;
+    saveProfile(id, { nickname: "", birthday: null });
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('main-calendar').style.display = 'flex';
+    initApp(id, { nickname: "", birthday: null });
+}
+
+function renderProfile(profile) {
+    const tag = document.getElementById('nickname-tag');
+    tag.innerText = profile && profile.nickname ? `${profile.nickname} 的專屬運勢` : "";
+
+    const banner = document.getElementById('bday-banner');
+    if (profile && profile.birthday) {
+        const days = daysUntilBirthday(profile.birthday);
+        if (days === 0) {
+            banner.innerText = "🎂 今天就是你的重要日子！生日快樂";
+            banner.style.display = 'block';
+        } else if (days <= 7) {
+            banner.innerText = `距離你的重要日子還有 ${days} 天`;
+            banner.style.display = 'block';
+        } else {
+            banner.style.display = 'none';
+        }
+    } else {
+        banner.style.display = 'none';
+    }
+}
+
+function daysUntilBirthday(birthdayStr) {
+    const b = new Date(birthdayStr);
+    const now = new Date();
+    let next = new Date(now.getFullYear(), b.getMonth(), b.getDate());
+    next.setHours(0,0,0,0);
+    const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (next < today0) next.setFullYear(next.getFullYear() + 1);
+    return Math.round((next - today0) / 86400000);
+}
+
+async function initApp(id, profile) {
+    renderProfile(profile);
     const today = getToday();
     const storageKey = `GF_LUCKY_DATA_${id}`;
     const saved = JSON.parse(localStorage.getItem(storageKey));
@@ -37,7 +118,7 @@ async function initApp(id) {
     if (saved && saved.date === today) {
         data = saved;
     } else {
-        const seed = parseInt(id) || 0;
+        const seed = hashId(id);
         const sr = () => { 
             const x = Math.sin(seed + new Date().getDate()) * 10000; 
             return x - Math.floor(x); 

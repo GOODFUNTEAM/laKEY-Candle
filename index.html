@@ -11,9 +11,29 @@
     <div id="lock-screen">
         <h2>LUCKY CANDLE</h2>
         <div id="lock-msg">🔒 請感應實體鑰匙解鎖運勢</div>
+        <div id="lock-hint">此運勢僅限持有實體鑰匙圈者查看，請勿任意分享此連結</div>
+    </div>
+
+    <div id="setup-screen">
+        <h3>初次見面</h3>
+        <p>幫你的鑰匙圈取個名字，並留下重要日期，我們會記住的。</p>
+        <div class="setup-field">
+            <label>暱稱</label>
+            <input type="text" id="setup-nickname" maxlength="10" placeholder="想被怎麼稱呼？">
+        </div>
+        <div class="setup-field">
+            <label>生日 / 紀念日（選填）</label>
+            <input type="date" id="setup-birthday">
+        </div>
+        <div class="setup-actions">
+            <button class="primary" onclick="completeSetup()">開始使用</button>
+        </div>
+        <div class="setup-skip" onclick="skipSetup()">先跳過，之後再說</div>
     </div>
 
     <div class="calendar-paper" id="main-calendar" style="display: none;">
+        <div id="nickname-tag"></div>
+        <div id="bday-banner"></div>
         <a href="https://www.instagram.com/goodfun_team/" target="_blank" class="ig-link">
             <span class="team-name">孤芳小隊</span>
             <span class="team-name" style="font-size: 0.7rem; text-align: right; letter-spacing: 0;">GOODFUN<br>TEAM</span>
