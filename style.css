@@ -1,157 +1,135 @@
 :root {
-    --red: #E8542E; /* 線框／輔助強調色 */
---blue: #1E3FCC; /* 數字／資訊專屬色 */
---paper: #F2F0E8; /* 背景／卡片底色 */
---ink: #181818; /* 補充說明文字 */
+    --blue: #1C5FD4;     /* 主角色：巨大數字、重點強調 */
+    --red: #E8622C;      /* 輔助色：吐槽框、標籤 */
+    --ink: #1A1A1A;
+    --paper: #FAF8F2;    /* 白底/米白 */
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
 body {
-    background-color: var(--paper);
+    background-color: #EDEBE3;
     display: flex; justify-content: center; align-items: center;
-    height: 100dvh; width: 100vw; overflow: hidden;
+    min-height: 100dvh; width: 100vw;
     font-family: 'Noto Sans TC', sans-serif;
     position: relative;
-}
-/* 滿版象牙白底噴漆顆粒紋理 */
-body::before {
-    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
-    filter: url(#bg-grain);
 }
 
 #lock-screen, #setup-screen, #welcome-screen { position: relative; z-index: 2; }
 
-#lock-screen {
-    text-align: center; color: var(--ink); display: flex; flex-direction: column; align-items: center;
-}
-#lock-screen h2 {
-    font-family: 'Zhi Mang Xing', cursive; font-size: 4.2rem; line-height: 0.95;
-    letter-spacing: 4px; margin-bottom: 18px; color: var(--blue);
-    filter: url(#grain-filter);
-    transform: rotate(-2deg);
-}
-#lock-msg { font-family: 'Noto Sans TC', sans-serif; font-weight: 900; font-size: 1rem; color: var(--ink); }
-#lock-hint {
-    margin-top: 16px; font-size: 0.65rem; font-family: sans-serif; color: var(--ink);
-    opacity: 0.75; max-width: 260px; line-height: 1.6;
-}
+#lock-screen { text-align: center; color: var(--ink); display: flex; flex-direction: column; align-items: center; }
+#lock-screen h2 { font-family: 'Zhi Mang Xing', cursive; font-size: 3.4rem; line-height: 0.95; letter-spacing: 4px; margin-bottom: 18px; color: var(--blue); }
+#lock-msg { font-weight: 900; font-size: 1rem; }
+#lock-hint { margin-top: 16px; font-size: 0.65rem; color: var(--red); opacity: 0.85; max-width: 260px; line-height: 1.6; }
 
-/* 首次設定畫面（暱稱 / 生日） */
 #setup-screen {
-    display: none; text-align: center; color: var(--ink);
-    flex-direction: column; align-items: center;
-    background-color: var(--paper); width: 90vw; max-width: 340px;
-    padding: 26px 20px; border: 2px solid var(--ink); box-shadow: none;
-    transform: rotate(-1deg);
+    display: none; text-align: center; color: var(--ink); flex-direction: column; align-items: center;
+    background-color: var(--paper); width: 90vw; max-width: 340px; padding: 26px 20px;
+    border: 4px solid var(--ink); box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
 }
-#setup-screen h3 {
-    font-family: 'Zhi Mang Xing', cursive; font-size: 2rem; letter-spacing: 2px;
-    margin-bottom: 6px; color: var(--red);
-}
-#setup-screen p { font-family: sans-serif; font-size: 0.7rem; color: #555; margin-bottom: 16px; }
-.setup-field { text-align: left; margin-bottom: 12px; font-family: sans-serif; }
-.setup-field label { display: block; font-size: 0.7rem; font-weight: 900; color: var(--blue); margin-bottom: 4px; }
-.setup-field input { width: 100%; border: 2px solid var(--ink); padding: 8px; font-size: 0.9rem; font-family: sans-serif; outline: none; background: #fff; }
+#setup-screen h3 { font-family: 'Zhi Mang Xing', cursive; font-size: 2rem; margin-bottom: 6px; color: var(--blue); }
+#setup-screen p { font-size: 0.7rem; color: #555; margin-bottom: 16px; }
+.setup-field { text-align: left; margin-bottom: 12px; }
+.setup-field label { display: block; font-size: 0.7rem; font-weight: 900; color: var(--red); margin-bottom: 4px; }
+.setup-field input { width: 100%; border: 2px solid var(--ink); padding: 8px; font-size: 0.9rem; outline: none; }
 .setup-actions { display: flex; gap: 8px; margin-top: 8px; width: 100%; }
-.setup-actions button { flex: 1; padding: 10px; font-weight: 900; font-family: sans-serif; border: 2px solid var(--ink); cursor: pointer; background: #fff; }
-.setup-actions button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.setup-skip { margin-top: 10px; font-size: 0.65rem; color: #777; text-decoration: underline; cursor: pointer; font-family: sans-serif; }
+.setup-actions button { flex: 1; padding: 10px; font-weight: 900; border: 2px solid var(--ink); cursor: pointer; background: #fff; }
+.setup-actions button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.setup-skip { margin-top: 10px; font-size: 0.65rem; color: #888; text-decoration: underline; cursor: pointer; }
 
-/* 開箱儀式感歡迎畫面：只有首次建立 profile 時短暫出現 */
 #welcome-screen {
-    display: none; position: fixed; inset: 0; z-index: 50;
-    background: var(--paper); align-items: center; justify-content: center;
-    animation: fadeInOut 2.6s ease forwards;
+    display: none; position: fixed; inset: 0; z-index: 50; background: var(--blue);
+    align-items: center; justify-content: center; animation: fadeInOut 2.6s ease forwards;
 }
-#welcome-text {
-    font-family: 'Zhi Mang Xing', cursive; font-size: 2rem; color: var(--blue);
-    text-align: center; padding: 0 30px; filter: url(#grain-filter);
-}
+#welcome-text { font-family: 'Zhi Mang Xing', cursive; font-size: 2rem; color: #fff; text-align: center; padding: 0 30px; }
 @keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
-#nickname-tag { font-family: sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--blue); text-align: center; margin-bottom: 4px; letter-spacing: 1px; }
-#bday-banner { display: none; text-align: center; font-family: sans-serif; font-size: 0.7rem; font-weight: 900; color: var(--paper); background: var(--red); padding: 4px 6px; margin-bottom: 6px; border: 2px solid var(--ink); }
-
 .calendar-paper {
-    background-color: var(--paper);
-    width: 94vw; max-width: 400px; height: 96dvh; padding: 14px; border: 2px solid var(--ink);
-    display: flex; flex-direction: column; box-shadow: none;
-    position: relative; z-index: 2; transform: rotate(0.6deg);
-    animation: slideUp 0.6s ease-out;
+    background-color: var(--paper); width: 94vw; max-width: 400px; height: 96dvh; overflow-y: auto;
+    padding: 14px; border: 3px solid var(--ink); display: flex; flex-direction: column; position: relative; z-index: 2;
 }
 
-.ig-link { text-decoration: none; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--ink); padding-bottom: 4px; margin-bottom: 8px; color: var(--ink); }
-.team-name { font-family: 'Zhi Mang Xing', cursive; font-size: 1.3rem; font-weight: 700; }
+.ig-link { text-decoration: none; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-bottom: 4px; color: var(--ink); }
+.team-name { font-family: 'Zhi Mang Xing', cursive; font-size: 1.1rem; font-weight: 700; }
 
-.date-box { border: 2px solid var(--red); flex: 2; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; margin-bottom: 8px; background: rgba(255,255,255,0.5); overflow: hidden; }
-.month-tag { position: absolute; top: 4px; left: 8px; color: var(--ink); font-weight: 900; font-size: 1.3rem; font-family: 'Noto Sans TC', sans-serif; letter-spacing: 2px; }
-.day-num { font-size: 22vh; font-weight: 900; color: var(--blue); line-height: 0.8; letter-spacing: -8px; font-family: 'Archivo Black', sans-serif; transform: rotate(-3deg); }
-.week-bar { width: 100%; background-color: var(--ink); color: var(--paper); text-align: center; font-size: 1.4rem; font-weight: 900; padding: 4px 0; margin-top: auto; font-family: 'Zhi Mang Xing', cursive; letter-spacing: 6px; }
+/* ===== 巨大日期數字區：視覺重心，吐槽框故意疊上去產生疊色 ===== */
+#giant-date-zone { position: relative; min-height: 240px; margin-bottom: 4px; }
+#giant-date {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    font-family: 'Archivo Black', sans-serif; font-size: 210px; line-height: 0.8;
+    color: var(--blue); mix-blend-mode: multiply; opacity: 0.88; z-index: 1;
+    pointer-events: none; user-select: none;
+}
+.tag {
+    position: absolute; background: var(--red); color: #fff; mix-blend-mode: multiply;
+    font-size: 0.62rem; font-weight: 900; padding: 5px 8px; border-radius: 3px;
+    text-align: center; line-height: 1.3; z-index: 2; cursor: default;
+}
+.tag-map { top: 4px; left: 2px; width: 74px; cursor: pointer; padding: 4px; }
+#map-thumb-wrap { width: 100%; height: 34px; background: rgba(255,255,255,0.5); border-radius: 2px; position: relative; overflow: hidden; margin-bottom: 2px; }
+#map-thumb-pin { position: absolute; width: 6px; height: 6px; background: #fff; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+.tag-week { top: 10px; right: 4px; transform: rotate(3deg); }
+.tag-month { top: 60px; right: 0px; transform: rotate(-2deg); }
+.tag-weather { top: 110px; right: -2px; transform: rotate(2deg); width: 92px; }
+.tag-yiji { bottom: 46px; left: 0px; transform: rotate(-3deg); }
+.tag-bday { bottom: 4px; right: 4px; transform: rotate(2deg); background: var(--blue); }
+.tag-nickname { top: 190px; left: 6px; transform: rotate(-2deg); background: var(--blue); }
 
-/* 今日一句話定調：取代原評級系統，做成醒目主標 */
-#theme-banner {
-    text-align: center; margin: 8px 0; padding: 6px 4px;
-    font-family: 'Zhi Mang Xing', cursive; font-size: 1.3rem; color: var(--red);
-    border-top: 2px dashed var(--ink); border-bottom: 2px dashed var(--ink);
-}
-#theme-star, #theme-star2 { color: var(--blue); font-size: 0.9rem; }
-
-.info-grid { display: grid; grid-template-columns: repeat(5, 1fr); border: 2px solid var(--ink); margin-bottom: 6px; background: rgba(255,255,255,0.7); }
-.cell { border-right: 2px solid var(--ink); padding: 4px 2px; text-align: center; }
-.cell:last-child { border-right: none; }
-.cell-label { color: var(--ink); font-weight: 900; font-size: 0.5rem; display: block; opacity: 0.7; }
-.cell-val { font-weight: 900; font-size: 0.7rem; color: var(--blue); font-family: 'Archivo Black', sans-serif; }
-
-.yiji-wrap { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); background: rgba(255,255,255,0.7); margin-bottom: 6px; }
-.yiji-box { padding: 4px; text-align: center; }
-.yiji-box.yi { border-right: 2px double var(--ink); }
-.yiji-head { font-weight: 900; font-size: 1.3rem; color: var(--red); display: block; font-family: 'Zhi Mang Xing', cursive; }
-.yiji-list { font-size: 0.85rem; font-weight: 900; list-style: none; display: flex; justify-content: center; gap: 8px; color: var(--ink); }
-
-.destiny-wrap { display: flex; gap: 8px; margin-bottom: 8px; height: 12vh; min-height: 76px; }
-.paper-card {
-    flex: 1; background: #fff; border: 2px solid var(--ink);
-    cursor: pointer; position: relative;
-}
-.card-front {
-    position: absolute; inset: 0; background: var(--blue); color: var(--paper);
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    font-weight: 900; z-index: 50; border: 1px dashed var(--paper); font-size: 0.9rem;
-    font-family: 'Zhi Mang Xing', cursive;
-    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s;
-    pointer-events: none;
-    transform-origin: center bottom;
-}
-.tear-active .card-front {
-    transform: translateY(-150%) rotate(-15deg) scale(0.8) !important;
-    opacity: 0 !important;
-}
-.paper-card::after {
-    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 20px;
-    background: url('tear_edge.png') bottom center; background-size: cover;
-    mix-blend-mode: multiply; opacity: 0.4; pointer-events: none; z-index: 5;
-}
-.card-back {
-    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-    text-align: center; padding: 6px; font-size: 0.8rem; font-weight: 800; z-index: 10; color: var(--ink);
-}
-
-/* 吹蠟燭互動（選用） */
-#candle-zone { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 8px; font-family: sans-serif; }
-#candle-visual { cursor: pointer; font-size: 0.85rem; font-weight: 900; color: var(--ink); background: rgba(255,255,255,0.6); border: 2px solid var(--ink); padding: 6px 10px; width: 100%; text-align: center; }
+/* ===== 蠟燭 + 抽籤合併儀式 ===== */
+#candle-omikuji-zone { margin-bottom: 8px; }
+#candle-stage { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#candle-visual { cursor: pointer; font-size: 0.85rem; font-weight: 900; color: var(--ink); background: rgba(255,255,255,0.6); border: 2px solid var(--ink); padding: 10px; width: 100%; text-align: center; }
 #candle-mic-toggle { cursor: pointer; font-size: 0.65rem; color: var(--blue); text-decoration: underline; }
 #candle-mic-toggle.active { color: var(--red); font-weight: 900; }
-#candle-result { font-size: 0.7rem; font-weight: 900; color: var(--red); min-height: 1em; }
 
-.wish-zone { display: flex; border: 2px solid var(--red); background: white; margin-bottom: 8px; }
-.wish-in { flex: 1; border: none; padding: 8px; font-weight: bold; outline: none; font-family: sans-serif; }
-.wish-go { background: var(--red); color: var(--paper); border: none; padding: 0 15px; font-weight: 900; font-family: 'Zhi Mang Xing', cursive; font-size: 1.1rem; cursor: pointer; }
+#theme-banner {
+    text-align: center; margin: 4px 0; padding: 8px 4px; cursor: pointer;
+    font-family: 'Zhi Mang Xing', cursive; font-size: 1.3rem; color: var(--blue);
+    border-top: 3px dashed var(--ink); border-bottom: 3px dashed var(--ink);
+}
+#theme-banner.is-bad { color: var(--ink); background: rgba(0,0,0,0.04); }
+
+#omikuji-detail { display: none; background: rgba(255,255,255,0.7); border: 2px solid var(--ink); padding: 8px; margin-top: 6px; font-size: 0.7rem; }
+#omikuji-detail.open { display: block; }
+#om-poem { font-family: 'Zhi Mang Xing', cursive; font-size: 0.95rem; color: var(--red); text-align: center; line-height: 1.6; margin-bottom: 6px; }
+#om-explain { color: var(--ink); text-align: center; margin-bottom: 8px; opacity: 0.85; }
+#om-fortunes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+#om-fortunes div { background: rgba(255,255,255,0.6); border: 1px solid var(--ink); padding: 4px 6px; }
+#om-fortunes b { color: var(--blue); }
+
+/* ===== 命運／機會：自選一張撕，撕開後佔滿整欄 ===== */
+.destiny-wrap { display: flex; gap: 8px; margin-bottom: 8px; min-height: 90px; }
+.destiny-wrap.chosen-destiny #card-opportunity,
+.destiny-wrap.chosen-opportunity #card-destiny { display: none; }
+.destiny-wrap.chosen-destiny #card-destiny,
+.destiny-wrap.chosen-opportunity #card-opportunity { flex: 1 1 100%; }
+.paper-card { flex: 1; background: #fff; border: 2px solid var(--ink); cursor: pointer; position: relative; min-height: 90px; }
+.card-front {
+    position: absolute; inset: 0; background: var(--blue); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-family: 'Zhi Mang Xing', cursive; font-size: 1.1rem;
+    transition: transform 0.7s cubic-bezier(0.23,1,0.32,1), opacity 0.4s;
+}
+.paper-card.torn .card-front { transform: translateY(-140%) rotate(-10deg); opacity: 0; pointer-events: none; }
+.paper-card.locked { opacity: 0.35; pointer-events: none; }
+.paper-card.locked .card-front::after { content: '今日已鎖定'; position: absolute; bottom: 4px; left: 0; right: 0; font-size: 0.55rem; }
+.card-back { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px; font-size: 0.85rem; font-weight: 700; color: var(--ink); }
+
+.wish-zone { display: flex; border: 2px solid var(--blue); background: white; margin-bottom: 8px; }
+.wish-in { flex: 1; border: none; padding: 8px; font-weight: bold; outline: none; }
+.wish-go { background: var(--blue); color: #fff; border: none; padding: 0 15px; font-weight: 900; font-family: 'Zhi Mang Xing', cursive; font-size: 1.1rem; cursor: pointer; }
 
 .footer { text-align: center; font-size: 0.6rem; font-weight: 900; margin-top: auto; padding-top: 4px; border-top: 2px solid var(--ink); color: var(--ink); }
 .footer-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-#share-btn {
-    background: var(--ink); color: var(--paper); border: none; padding: 5px 10px;
-    font-weight: 900; font-size: 0.6rem; cursor: pointer; font-family: sans-serif;
-}
+#share-btn { background: var(--red); color: #fff; border: none; padding: 5px 10px; font-weight: 900; font-size: 0.6rem; cursor: pointer; }
 
-@keyframes slideUp { from { transform: translateY(15px) rotate(0.6deg); opacity: 0; } to { transform: translateY(0) rotate(0.6deg); opacity: 1; } }
+/* ===== 地圖彈窗 ===== */
+#map-modal {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100;
+    align-items: center; justify-content: center;
+}
+#map-modal.open { display: flex; }
+#map-modal-inner { background: var(--paper); width: 92vw; max-width: 480px; max-height: 88vh; overflow: auto; padding: 16px; position: relative; border: 3px solid var(--ink); }
+#map-modal-close { position: absolute; top: 8px; right: 12px; font-size: 1.2rem; cursor: pointer; font-weight: 900; }
+#map-modal-title { font-family: 'Zhi Mang Xing', cursive; font-size: 1.2rem; color: var(--blue); text-align: center; margin-bottom: 8px; }
+#map-modal-svg-wrap svg { width: 100%; height: auto; }
+#map-modal-svg-wrap .user-pin { fill: var(--red); }
