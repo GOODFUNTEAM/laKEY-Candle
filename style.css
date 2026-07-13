@@ -1,3 +1,14 @@
+@font-face {
+    font-family: 'GenEi M Gothic';
+    src: url('fonts/GenEiMGothic2-Regular.woff2') format('woff2');
+    font-weight: 400; font-display: swap;
+}
+@font-face {
+    font-family: 'GenEi M Gothic';
+    src: url('fonts/GenEiMGothic2-Black.woff2') format('woff2');
+    font-weight: 900; font-display: swap;
+}
+
 :root {
     --blue: #1C5FD4;     /* 主角色：巨大數字、重點強調 */
     --red: #E8622C;      /* 輔助色：吐槽框、標籤 */
@@ -10,14 +21,14 @@ body {
     background-color: #EDEBE3;
     display: flex; justify-content: center; align-items: center;
     min-height: 100dvh; width: 100vw;
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'GenEi M Gothic', 'Noto Sans TC', sans-serif;
     position: relative;
 }
 
 #lock-screen, #setup-screen, #welcome-screen { position: relative; z-index: 2; }
 
 #lock-screen { text-align: center; color: var(--ink); display: flex; flex-direction: column; align-items: center; }
-#lock-screen h2 { font-family: 'Zhi Mang Xing', cursive; font-size: 3.4rem; line-height: 0.95; letter-spacing: 4px; margin-bottom: 18px; color: var(--blue); }
+#lock-screen h2 { font-family: 'GenEi M Gothic', cursive; font-size: 3.4rem; line-height: 0.95; letter-spacing: 4px; margin-bottom: 18px; color: var(--blue); font-weight: 900; }
 #lock-msg { font-weight: 900; font-size: 1rem; }
 #lock-hint { margin-top: 16px; font-size: 0.65rem; color: var(--red); opacity: 0.85; max-width: 260px; line-height: 1.6; }
 
@@ -26,7 +37,7 @@ body {
     background-color: var(--paper); width: 90vw; max-width: 340px; padding: 26px 20px;
     border: 4px solid var(--ink); box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
 }
-#setup-screen h3 { font-family: 'Zhi Mang Xing', cursive; font-size: 2rem; margin-bottom: 6px; color: var(--blue); }
+#setup-screen h3 { font-family: 'GenEi M Gothic', cursive; font-size: 2rem; margin-bottom: 6px; color: var(--blue); font-weight: 900; }
 #setup-screen p { font-size: 0.7rem; color: #555; margin-bottom: 16px; }
 .setup-field { text-align: left; margin-bottom: 12px; }
 .setup-field label { display: block; font-size: 0.7rem; font-weight: 900; color: var(--red); margin-bottom: 4px; }
@@ -40,7 +51,7 @@ body {
     display: none; position: fixed; inset: 0; z-index: 50; background: var(--blue);
     align-items: center; justify-content: center; animation: fadeInOut 2.6s ease forwards;
 }
-#welcome-text { font-family: 'Zhi Mang Xing', cursive; font-size: 2rem; color: #fff; text-align: center; padding: 0 30px; }
+#welcome-text { font-family: 'GenEi M Gothic', cursive; font-size: 2rem; color: #fff; text-align: center; padding: 0 30px; font-weight: 900; }
 @keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
 .calendar-paper {
@@ -49,16 +60,15 @@ body {
 }
 
 .ig-link { text-decoration: none; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-bottom: 4px; color: var(--ink); }
-.team-name { font-family: 'Zhi Mang Xing', cursive; font-size: 1.1rem; font-weight: 700; }
+.team-name { font-family: 'GenEi M Gothic', cursive; font-size: 1.1rem; font-weight: 900; }
 
 /* ===== 巨大日期數字區：視覺重心，吐槽框故意疊上去產生疊色 ===== */
 #giant-date-zone { position: relative; min-height: 240px; margin-bottom: 4px; }
 #giant-date {
     position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-    font-family: 'Archivo Black', sans-serif; font-size: 210px; line-height: 0.8;
+    font-family: 'GenEi M Gothic', sans-serif; font-size: 210px; line-height: 0.8;
     color: var(--blue); mix-blend-mode: multiply; opacity: 0.88; z-index: 1;
-    pointer-events: none; user-select: none;
-}
+    pointer-events: none; user-select: none; font-weight: 900; }
 .tag {
     position: absolute; background: var(--red); color: #fff; mix-blend-mode: multiply;
     font-size: 0.62rem; font-weight: 900; padding: 5px 8px; border-radius: 3px;
@@ -83,14 +93,13 @@ body {
 
 #theme-banner {
     text-align: center; margin: 4px 0; padding: 8px 4px; cursor: pointer;
-    font-family: 'Zhi Mang Xing', cursive; font-size: 1.3rem; color: var(--blue);
-    border-top: 3px dashed var(--ink); border-bottom: 3px dashed var(--ink);
-}
+    font-family: 'GenEi M Gothic', cursive; font-size: 1.3rem; color: var(--blue);
+    border-top: 3px dashed var(--ink); border-bottom: 3px dashed var(--ink); font-weight: 900; }
 #theme-banner.is-bad { color: var(--ink); background: rgba(0,0,0,0.04); }
 
 #omikuji-detail { display: none; background: rgba(255,255,255,0.7); border: 2px solid var(--ink); padding: 8px; margin-top: 6px; font-size: 0.7rem; }
 #omikuji-detail.open { display: block; }
-#om-poem { font-family: 'Zhi Mang Xing', cursive; font-size: 0.95rem; color: var(--red); text-align: center; line-height: 1.6; margin-bottom: 6px; }
+#om-poem { font-family: 'GenEi M Gothic', cursive; font-size: 0.95rem; color: var(--red); text-align: center; line-height: 1.6; margin-bottom: 6px; font-weight: 900; }
 #om-explain { color: var(--ink); text-align: center; margin-bottom: 8px; opacity: 0.85; }
 #om-fortunes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
 #om-fortunes div { background: rgba(255,255,255,0.6); border: 1px solid var(--ink); padding: 4px 6px; }
@@ -106,7 +115,7 @@ body {
 .card-front {
     position: absolute; inset: 0; background: var(--blue); color: #fff;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-family: 'Zhi Mang Xing', cursive; font-size: 1.1rem;
+    font-weight: 900; font-family: 'GenEi M Gothic', cursive; font-size: 1.1rem;
     transition: transform 0.7s cubic-bezier(0.23,1,0.32,1), opacity 0.4s;
 }
 .paper-card.torn .card-front { transform: translateY(-140%) rotate(-10deg); opacity: 0; pointer-events: none; }
@@ -116,7 +125,7 @@ body {
 
 .wish-zone { display: flex; border: 2px solid var(--blue); background: white; margin-bottom: 8px; }
 .wish-in { flex: 1; border: none; padding: 8px; font-weight: bold; outline: none; }
-.wish-go { background: var(--blue); color: #fff; border: none; padding: 0 15px; font-weight: 900; font-family: 'Zhi Mang Xing', cursive; font-size: 1.1rem; cursor: pointer; }
+.wish-go { background: var(--blue); color: #fff; border: none; padding: 0 15px; font-weight: 900; font-family: 'GenEi M Gothic', cursive; font-size: 1.1rem; cursor: pointer; }
 
 .footer { text-align: center; font-size: 0.6rem; font-weight: 900; margin-top: auto; padding-top: 4px; border-top: 2px solid var(--ink); color: var(--ink); }
 .footer-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
@@ -130,6 +139,6 @@ body {
 #map-modal.open { display: flex; }
 #map-modal-inner { background: var(--paper); width: 92vw; max-width: 480px; max-height: 88vh; overflow: auto; padding: 16px; position: relative; border: 3px solid var(--ink); }
 #map-modal-close { position: absolute; top: 8px; right: 12px; font-size: 1.2rem; cursor: pointer; font-weight: 900; }
-#map-modal-title { font-family: 'Zhi Mang Xing', cursive; font-size: 1.2rem; color: var(--blue); text-align: center; margin-bottom: 8px; }
+#map-modal-title { font-family: 'GenEi M Gothic', cursive; font-size: 1.2rem; color: var(--blue); text-align: center; margin-bottom: 8px; font-weight: 900; }
 #map-modal-svg-wrap svg { width: 100%; height: auto; }
 #map-modal-svg-wrap .user-pin { fill: var(--red); }
